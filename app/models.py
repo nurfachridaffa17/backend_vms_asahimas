@@ -15,26 +15,12 @@ class M_User(db.Model):
     other_document = db.Column(db.String(255))
     photo = db.Column(db.String(255))
 
-    def __init__(self, created_at, is_active, id_usertype, name, username, password, email, company, nik, phone, other_documment, photo):
-        self.created_at = created_at
-        self.is_active = is_active
-        self.id_usertype = id_usertype
-        self.name = name
-        self.username = username
-        self.password = password
-        self.email = email
-        self.company = company
-        self.nik = nik
-        self.phone = phone
-        self.other_documment = other_documment
-        self.photo = photo
-
     def __repr__(self):
         return '<M_User {}>'.format(self.name)
     
     def serialize(self):
         return {
-            'id': self.id, 
+            'id': self.id,
             'created_at': self.created_at,
             'is_active': self.is_active,
             'id_usertype': self.id_usertype,
@@ -44,8 +30,8 @@ class M_User(db.Model):
             'email': self.email,
             'company': self.company,
             'nik': self.nik,
-            'photo' : self.photo,
-            'other_documment': self.other_documment,
+            'other_document': self.other_document,
+            'photo': self.photo,
         }
 
 class M_UserType(db.Model):
@@ -57,14 +43,6 @@ class M_UserType(db.Model):
     updated_at = db.Column(db.DateTime)
     is_active = db.Column(db.Integer)
     name = db.Column(db.String(255))
-
-    def __init__(self, created_at, updated_uid, updated_at, is_active, name, created_uid):
-        self.created_uid = created_uid
-        self.created_at = created_at
-        self.updated_uid = updated_uid
-        self.updated_at = updated_at
-        self.is_active = is_active
-        self.name = name
 
     def __repr__(self):
         return '<M_UserType {}>'.format(self.name)

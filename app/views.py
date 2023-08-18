@@ -9,13 +9,7 @@ from flask_login import login_required
 @app.route('/api/v1/user/create', methods=['POST'])
 def user_route():
     if request.method == 'POST':
-        email = request.form.get('email')
-        name = request.form.get('name')
-        password = request.form.get('password')
-        username = request.form.get('username')
-        company = request.form.get('company')
-
-        return create_user(email=email, name=name, password=password, username=username, company=company)
+        return create_user()
 
 @app.route('/user', methods=['GET','PUT'])
 def get_update_user():

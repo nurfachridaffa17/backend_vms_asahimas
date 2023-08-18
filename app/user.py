@@ -1,7 +1,6 @@
 from .models import db,M_User
 from flask import request, jsonify
 import datetime
-import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from . import app
@@ -10,17 +9,20 @@ from flask_login import current_user
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
-def create_user(email, password, username, name, company):
-    now = datetime.datetime.now()  
+def create_user():
+    now = datetime.datetime.now()
     new_user = M_User(
-        id = 1,
-        email = email,
-        password = generate_password_hash(password, method='scrypt'),
+        email = request.form.get('email'),
+        password = generate_password_hash(request.form.get('password'), method='scrypt'),
         created_at = now,
         is_active = 1,
-        name = name,
-        username = username,
-        company = company,
+        name = request.form.get('name'),
+        username = request.form.get('username'),
+        company = request.form.get('company'),
+        id_usertype = request.form.get('id_usertype'),
+        photo = None,
+        nik = None,
+        other_document = None,
     )
 
     db.session.add(new_user)

@@ -7,6 +7,7 @@ from .user import create_user, get_all_user, get_user_by_id, update_user, delete
 from .masterCard import create_card, get_all_card, get_card_by_id, update_card, delete_card
 from .usertype import create_usertype, get_all_usertype, get_usertype_by_id, update_usertype, delete_usertype
 from flask_login import login_required
+from .access_area import create_access_area, get_all_access_area, get_access_area_by_id, update_access_area, delete_access_area
 
 @app.route('/api/v1/user/create', methods=['POST'])
 def user_route():
@@ -85,4 +86,30 @@ def delete_usertype_route():
     if id is None:
         return jsonify({'message': 'Missing usertype ID parameter'}), 400
     return delete_usertype(id=id)
+
+@app.route('/api/v1/access_area', methods=['POST'])
+def get_access_area():
+    if request.method == 'POST':
+        return create_access_area()
+
+@app.route('/api/v1/access_area/all', methods=['GET'])
+def get_all_access_area_route():
+    return get_all_access_area()
+
+@app.route('/api/v1/access_area', methods=['GET','PUT'])
+def get_update_access_area():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing access_area ID parameter'}), 400
+    if request.method == 'GET':
+        return get_access_area_by_id(id)
+    elif request.method == 'PUT':
+        return update_access_area(id=id)
+
+@app.route('/api/v1/access_area/delete', methods=['DELETE'])
+def delete_access_area_route():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing access_area ID parameter'}), 400
+    return delete_access_area(id=id)
 

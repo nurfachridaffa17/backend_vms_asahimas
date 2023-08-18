@@ -65,12 +65,6 @@ class M_Card(db.Model):
     created_at = db.Column(db.DateTime)
     updated_by = db.Column(db.Integer)
     updated_at = db.Column(db.DateTime)
-
-    def __init__(self, created_at, updated_by, updated_at, created_by):
-        self.created_by = created_by
-        self.created_at = created_at
-        self.updated_by = updated_by
-        self.updated_at = updated_at
     
     def __repr__(self):
         return '<M_Card {}>'.format(self.id)

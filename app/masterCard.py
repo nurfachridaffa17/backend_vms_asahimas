@@ -62,3 +62,13 @@ def update_card(id):
         return jsonify({'message': 'Failed to update card!'}), 400
 
     return jsonify({'message': 'Card updated!'}), 200
+
+def delete_card(id):
+    card = M_Card.query.filter_by(id=id).first()
+    if not card:
+        return jsonify({'message': 'No card found!'}), 404
+
+    db.session.delete(card)
+    db.session.commit()
+
+    return jsonify({'message': 'Card has been deleted!'}), 200

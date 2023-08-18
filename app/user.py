@@ -83,7 +83,7 @@ def get_all_user():
         user_data['username'] = user.username
         user_data['company'] = user.company
         user_data['nik'] = user.nik
-        user_data['other_document'] = user.other_documment
+        user_data['other_document'] = user.other_document
         user_data['photo'] = user.photo
         output.append(user_data)
 

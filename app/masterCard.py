@@ -11,6 +11,7 @@ def create_card():
         name = request.form.get('name'),
         created_at = now,
         is_active = 1,
+        is_used = 0,
     )
 
     db.session.add(new_card)
@@ -31,6 +32,7 @@ def get_all_card():
         card_data['name'] = card.name
         card_data['created_at'] = card.created_at
         card_data['is_active'] = card.is_active
+        card_data['is_used'] = card.is_used
         output.append(card_data)
 
     return jsonify({'cards': output}), 200
@@ -46,6 +48,7 @@ def get_card_by_id(id):
     card_data['name'] = card.name
     card_data['created_at'] = card.created_at
     card_data['is_active'] = card.is_active
+    card_data['is_used'] = card.is_used
 
     return jsonify({'card': card_data}), 200
 
@@ -57,6 +60,8 @@ def update_card(id):
     try:
         card.card_number = request.form.get('card_number')
         card.name = request.form.get('name')
+        card.is_active = request.form.get('is_active')
+        card.is_used = request.form.get('is_used')
         db.session.commit()
     except:
         return jsonify({'message': 'Failed to update card!'}), 400

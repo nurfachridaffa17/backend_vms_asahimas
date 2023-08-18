@@ -61,10 +61,11 @@ class M_UserType(db.Model):
 class M_Card(db.Model):
     __tablename__ = 'm_card'
     id = db.Column(db.Integer, primary_key=True)
-    created_by = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
-    updated_by = db.Column(db.Integer)
-    updated_at = db.Column(db.DateTime)
+    card_number = db.Column(db.String(255))
+    name = db.Column(db.String(255))
+    is_used = db.Column(db.Integer)
+    is_active = db.Column(db.Integer)
     
     def __repr__(self):
         return '<M_Card {}>'.format(self.id)
@@ -73,7 +74,54 @@ class M_Card(db.Model):
         return {
             'id': self.id, 
             'created_at': self.created_at,
-            'updated_by': self.updated_by,
-            'updated_at': self.updated_at,
-            'created_by': self.created_by,
+            'card_number': self.card_number,
+            'name': self.name,
+            'is_used': self.is_used,
+            'is_active' : self.is_active,
         }
+
+class M_Inviting(db.Model):
+    __tablename__ = 'm_inviting'
+    id = db.Column(db.Integer, primary_key=True)
+    created_by = db.Column(db.Integer)
+    is_active = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    email = db.Column(db.String(255))
+    access_area_id = db.Column(db.Integer)
+    datetime = db.Column(db.DateTime)
+    purpose = db.Column(db.String(255))
+    is_approved = db.Column(db.Integer)
+    approved_by = db.Column(db.Integer)
+    status = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<M_Inviting {}>'.format(self.id)
+    
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'created_by': self.created_by,
+            'is_active': self.is_active,
+            'user_id': self.user_id,
+            'email': self.email,
+            'access_area_id': self.access_area_id,
+            'datetime': self.datetime,
+            'purpose': self.purpose,
+        }
+
+class M_Access_Area(db.Model):
+    __tablename__ = 'm_accessarea'
+    id = db.Column(db.Integer, primary_key=True)
+    is_active = db.Column(db.Integer)
+    name = db.Column(db.String(255))
+
+    def __repr__(self):
+        return '<M_Access_Area {}>'.format(self.id)
+
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'is_active': self.is_active,
+            'name': self.name,
+        }
+

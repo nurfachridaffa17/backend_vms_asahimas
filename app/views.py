@@ -8,6 +8,8 @@ from .masterCard import create_card, get_all_card, get_card_by_id, update_card, 
 from .usertype import create_usertype, get_all_usertype, get_usertype_by_id, update_usertype, delete_usertype
 from flask_login import login_required
 from .access_area import create_access_area, get_all_access_area, get_access_area_by_id, update_access_area, delete_access_area
+from .transaction import create_transaction, get_all_transaction, get_transaction_by_id, transaction_check_out 
+
 
 @app.route('/api/v1/user/create', methods=['POST'])
 def user_route():
@@ -113,3 +115,21 @@ def delete_access_area_route():
         return jsonify({'message': 'Missing access_area ID parameter'}), 400
     return delete_access_area(id=id)
 
+@app.route('/api/v1/transaction', methods=['POST'])
+def get_transaction():
+    if request.method == 'POST':
+        return create_transaction()
+
+@app.route('/api/v1/transaction/all', methods=['GET'])
+def get_all_transaction_route():
+    return get_all_transaction()
+
+@app.route('/api/v1/transaction', methods=['GET','PUT'])
+def get_update_transaction():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing transaction ID parameter'}), 400
+    if request.method == 'GET':
+        return get_transaction_by_id(id)
+    elif request.method == 'PUT':
+        return transaction_check_out(id=id)

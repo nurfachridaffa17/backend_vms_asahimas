@@ -17,6 +17,9 @@ def create_transaction():
             is_active = 1,
             check_in = datetime.datetime.now(),
         )
+
+        check_card.is_used = 1
+
         db.session.add(new_transaction)
         db.session.commit()
         return jsonify({'message': 'Change card is success!'}), 200
@@ -43,9 +46,13 @@ def get_all_transaction():
 
 def transaction_check_out(id):
     transaction = T_Rfid.query.filter_by(id=id).first()
+    card_id = transaction.card_id
     if not transaction:
         return jsonify({'message': 'No transaction found!'}), 404
 
+    check_card = M_Card.query.filter_by(id=card_id).first()
+    check_card.is_used = 0
+    
     transaction.check_out = datetime.datetime.now()
     transaction.is_active = 0
     db.session.commit()

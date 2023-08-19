@@ -1,12 +1,10 @@
-from .models import db,M_AccessArea
+from .models import db,M_Access_Area
 from flask import request, jsonify
 import datetime
 
 def create_access_area():
-    now = datetime.datetime.now()
-    new_access_area = M_AccessArea(
+    new_access_area = M_Access_Area(
         name = request.form.get('name'),
-        created_at = now,
         is_active = 1,
     )
 
@@ -16,7 +14,7 @@ def create_access_area():
     return jsonify({'message': 'New access area created!'}), 200
 
 def get_all_access_area():
-    access_areas = M_AccessArea.query.all()
+    access_areas = M_Access_Area.query.all()
     if not access_areas:
         return jsonify({'message': 'No access area found!'}), 404
 
@@ -25,27 +23,25 @@ def get_all_access_area():
         access_area_data = {}
         access_area_data['id'] = access_area.id
         access_area_data['name'] = access_area.name
-        access_area_data['created_at'] = access_area.created_at
         access_area_data['is_active'] = access_area.is_active
         output.append(access_area_data)
 
     return jsonify({'access_areas': output}), 200
 
 def get_access_area_by_id(id):
-    access_area = M_AccessArea.query.filter_by(id=id).first()
+    access_area = M_Access_Area.query.filter_by(id=id).first()
     if not access_area:
         return jsonify({'message': 'No access area found!'}), 404
 
     access_area_data = {}
     access_area_data['id'] = access_area.id
     access_area_data['name'] = access_area.name
-    access_area_data['created_at'] = access_area.created_at
     access_area_data['is_active'] = access_area.is_active
 
     return jsonify({'access_area': access_area_data}), 200
 
 def update_access_area(id):
-    access_area = M_AccessArea.query.filter_by(id=id).first()
+    access_area = M_Access_Area.query.filter_by(id=id).first()
     if not access_area:
         return jsonify({'message': 'No access area found!'}), 404
     
@@ -58,7 +54,7 @@ def update_access_area(id):
         return jsonify({'message': 'Access area not updated!'}), 500
 
 def delete_access_area(id):
-    access_area = M_AccessArea.query.filter_by(id=id).first()
+    access_area = M_Access_Area.query.filter_by(id=id).first()
     if not access_area:
         return jsonify({'message': 'No access area found!'}), 404
 

@@ -4,7 +4,7 @@ import os
 import json
 import requests
 from .user import create_user, get_all_user, get_user_by_id, update_user, delete_user
-from .masterCard import create_card, get_all_card, get_card_by_id, update_card, delete_card
+from .masterCard import create_card, get_all_card, get_card_by_id, update_card, delete_card, get_card_not_use
 from .usertype import create_usertype, get_all_usertype, get_usertype_by_id, update_usertype, delete_usertype
 from flask_login import login_required
 from .access_area import create_access_area, get_all_access_area, get_access_area_by_id, update_access_area, delete_access_area
@@ -55,6 +55,10 @@ def get_update_card():
         return get_card_by_id(id)
     elif request.method == 'PUT':
         return update_card(id=id)
+    
+@app.route('/api/v1/card/not_use', methods=['GET'])
+def get_card_not_activate():
+    return get_card_not_use()
 
 @app.route('/api/v1/card/delete', methods=['DELETE'])
 def delete_card_route():

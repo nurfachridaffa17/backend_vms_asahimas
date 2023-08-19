@@ -125,3 +125,26 @@ class M_Access_Area(db.Model):
             'name': self.name,
         }
 
+
+class T_Rfid(db.Model):
+    __tablename__ = 't_rfid'
+    id = db.Column(db.Integer, primary_key=True)
+    is_active = db.Column(db.Integer)
+    name = db.Column(db.String(255))
+    card_id = db.Column(db.Integer)
+    check_in = db.Column(db.DateTime)
+    check_out = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return '<T_Rfid {}>'.format(self.id)
+
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'is_active': self.is_active,
+            'name': self.name,
+            'card_id': self.card_id,
+            'check_in': self.check_in,
+            'check_out': self.check_out,
+        }
+

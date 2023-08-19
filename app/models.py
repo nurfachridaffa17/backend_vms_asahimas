@@ -39,8 +39,6 @@ class M_UserType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_uid = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
-    updated_uid = db.Column(db.Integer)
-    updated_at = db.Column(db.DateTime)
     is_active = db.Column(db.Integer)
     name = db.Column(db.String(255))
 
@@ -51,8 +49,6 @@ class M_UserType(db.Model):
         return {
             'id': self.id, 
             'created_at': self.created_at,
-            'updated_uid': self.updated_uid,
-            'updated_at': self.updated_at,
             'is_active': self.is_active,
             'name': self.name,
             'created_uid': self.created_uid,

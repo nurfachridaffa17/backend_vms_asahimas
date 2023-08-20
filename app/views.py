@@ -172,7 +172,7 @@ def delete_transaction_route():
     return delete_transaction(id=id)
 
 
-@app.rouote('/api/v1/create/invitiing', methods=['POST'])
+@app.route('/api/v1/create/invitiing', methods=['POST'])
 def get_inviting():
     if request.method == 'POST':
         return create_inviting()

@@ -4,7 +4,6 @@ import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from . import app
-from flask_login import current_user
 
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))

@@ -52,7 +52,7 @@ def transaction_check_out(id):
 
     check_card = M_Card.query.filter_by(id=card_id).first()
     check_card.is_used = 0
-    
+
     transaction.check_out = datetime.datetime.now()
     transaction.is_active = 0
     db.session.commit()
@@ -73,6 +73,16 @@ def get_transaction_by_id(id):
     transaction_data['check_out'] = transaction.check_out
 
     return jsonify({'transaction': transaction_data}), 200
+
+def delete_transaction(id):
+    transaction = T_Rfid.query.filter_by(id=id).first()
+    if not transaction:
+        return jsonify({'message': 'No transaction found!'}), 404
+
+    db.session.delete(transaction)
+    db.session.commit()
+
+    return jsonify({'message': 'Transaction deleted!'}), 200
 
 
 

@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, session
 from . import app
 import os
 import json
@@ -8,7 +8,33 @@ from .masterCard import create_card, get_all_card, get_card_by_id, update_card, 
 from .usertype import create_usertype, get_all_usertype, get_usertype_by_id, update_usertype, delete_usertype
 from flask_login import login_required
 from .access_area import create_access_area, get_all_access_area, get_access_area_by_id, update_access_area, delete_access_area
-from .transaction import create_transaction, get_all_transaction, get_transaction_by_id, transaction_check_out 
+from .transaction import create_transaction, get_all_transaction, get_transaction_by_id, transaction_check_out, delete_transaction
+from .models import M_User, M_Card, M_UserType
+from werkzeug.security import generate_password_hash
+from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, approved_inviting, not_approved_inviting, delete_inviting
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('email')
+    password = data.get('password')
+
+    user = M_User.query.filter_by(email=username).first()
+
+    if not user:
+        return jsonify({'message': 'User not found'}), 401
+    
+    if not user.check_password(password):
+        return jsonify({'message': 'Invalid password'}), 401
+    
+    session['user_id'] = user.id
+    return jsonify({'message': 'Login success'}), 200
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return jsonify({'message': 'Logout success'}), 200
 
 
 @app.route('/api/v1/user/create', methods=['POST'])
@@ -137,3 +163,56 @@ def get_update_transaction():
         return get_transaction_by_id(id)
     elif request.method == 'PUT':
         return transaction_check_out(id=id)
+
+@app.route('/api/v1/transaction/delete', methods=['DELETE'])
+def delete_transaction_route():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing transaction ID parameter'}), 400
+    return delete_transaction(id=id)
+
+
+@app.rouote('/api/v1/create/invitiing', methods=['POST'])
+def get_inviting():
+    if request.method == 'POST':
+        return create_inviting()
+
+
+@app.route('/api/v1/inviting/all', methods=['GET'])
+def get_all_inviting_route():
+    if request.method == 'GET':
+        return get_all_inviting()
+
+
+@app.route('/api/v1/inviting', methods=['GET'])
+def get_update_inviting():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing inviting ID parameter'}), 400
+    if request.method == 'GET':
+        return get_inviting_by_id(id)
+
+
+@app.route('/api/v1/inviting/delete', methods=['DELETE'])
+def delete_inviting_route(id):
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing inviting ID parameter'}), 400 
+
+    return delete_inviting(id=id)
+
+
+@app.route('/api/v1/inviting/accept', methods=['PUT'])
+def accept_inviting_route():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing inviting ID parameter'}), 400
+    return approved_inviting(id=id)
+
+
+@app.route('/api/v1/inviting/reject', methods=['PUT'])
+def reject_inviting_route():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing inviting ID parameter'}), 400
+    return not_approved_inviting(id=id)

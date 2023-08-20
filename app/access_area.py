@@ -47,7 +47,6 @@ def update_access_area(id):
     
     try:
         access_area.name = request.form.get('name')
-        access_area.is_active = request.form.get('is_active')
         db.session.commit()
         return jsonify({'message': 'Access area updated!'}), 200
     except:

@@ -8,7 +8,7 @@ from . import app
 logging_service = LoggingService(app)
 
 
-def send_email(link):
+def send_email():
     msg = Message(
         subject='Selamat Datang di Aplikasi VMS-SERELO',
         recipients=request.form.get('email')

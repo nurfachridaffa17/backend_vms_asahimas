@@ -10,7 +10,7 @@ def send_email(sender, recipients, link):
         recipients=recipients
     )
     # msg.html = '<p>Kepada {}</p>'.format(acceptor)
-    msg.html += '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
+    msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
     msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi</p>'
     msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
     

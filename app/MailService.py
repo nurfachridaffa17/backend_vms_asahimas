@@ -3,11 +3,10 @@ from .models import db
 from . import mail
 from flask import jsonify
 
-def send_email(sender, recipients, link):
+def send_email(receipt, link):
     msg = Message(
         subject='Selamat Datang di Aplikasi VMS-SERELO',
-        sender=sender,
-        recipients=recipients
+        recipients=receipt
     )
     # msg.html = '<p>Kepada {}</p>'.format(acceptor)
     msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
@@ -18,7 +17,6 @@ def send_email(sender, recipients, link):
         mail.send(msg)
         return True
     except Exception as e:
-        jsonify("Email sending failed:", str(e))
         return False
     
     # try:

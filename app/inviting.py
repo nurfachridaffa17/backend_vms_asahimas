@@ -32,8 +32,8 @@ def create_inviting():
         db.session.commit()
 
         test = send_email(
-            receipt=[email],
-            link=ip + '/user?email={}'.format(email)
+            receipt=email,
+            link=ip+'/user?email={}'.format(email)
         )
 
         if test:

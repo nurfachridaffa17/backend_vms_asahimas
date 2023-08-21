@@ -38,7 +38,7 @@ def get_all_inviting():
     for inviting in invitings:
         inviting_data = {}
         inviting_data['id'] = inviting.id
-        inviting_data['created_at'] = inviting.created_at
+        inviting_data['created_by'] = inviting.created_by
         inviting_data['is_active'] = inviting.is_active
         inviting_data['user_id'] = inviting.user_id
         inviting_data['email'] = inviting.email
@@ -59,7 +59,7 @@ def get_inviting_by_id(id):
 
     inviting_data = {}
     inviting_data['id'] = inviting.id
-    inviting_data['created_at'] = inviting.created_at
+    inviting_data['created_by'] = inviting.created_by
     inviting_data['is_active'] = inviting.is_active
     inviting_data['user_id'] = inviting.user_id
     inviting_data['email'] = inviting.email

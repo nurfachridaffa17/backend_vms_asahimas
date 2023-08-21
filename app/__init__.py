@@ -11,6 +11,6 @@ def create_app():
     app.config.from_object('config.Config')
     db.init_app(app)
     mail.init_app(app)
-    CORS(app)
+    CORS(app, supports_credentials=True)
     from . import views
     return app

@@ -13,16 +13,17 @@ def send_email(receipt, link):
         subject='Selamat Datang di Aplikasi VMS-SERELO',
         recipients=receipt
     )
-    # msg.html = '<p>Kepada {}</p>'.format(acceptor)
     msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
     msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi</p>'
     msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
 
     try:
         mail.send(msg)
-        return logging_service.log_info('Email sent!'), 200
+        logging_service.log_info('Email sent!')
+        return jsonify({'message': 'Email sent successfully'}), 200
     except Exception as e:
-        return logging_service.log_error(str(e)), 400
+        logging_service.log_error(str(e))
+        return jsonify({'message': 'Email sending failed'}), 400
     
     # try:
     #     mail.send(msg)

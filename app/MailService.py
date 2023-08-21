@@ -3,8 +3,9 @@ from .models import db
 from . import mail
 from flask import jsonify
 from .log_service import LoggingService
+from . import app
 
-logging_service = LoggingService()
+logging_service = LoggingService(app)
 
 
 def send_email(receipt, link):

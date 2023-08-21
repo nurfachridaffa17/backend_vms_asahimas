@@ -13,6 +13,8 @@ from .models import M_User, M_Card, M_UserType
 from werkzeug.security import generate_password_hash
 from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, approved_inviting, not_approved_inviting, delete_inviting
 from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+import datetime
 
 
 @app.route('/login', methods=['POST'])
@@ -22,16 +24,16 @@ def login():
 
     user = M_User.query.filter_by(email=email).first()
 
-    if not user:
-        return jsonify({'message': 'User not found'}), 401
-
-    password_check = check_password_hash(user.password, password)
-
-    if password_check:
-        session['user_id'] = user.id
-        return jsonify({'message': 'Login successful!'}), 200
-    else:
+    if not user or not check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid credentials'}), 401
+    
+    payload = {
+        'user_id' : user.id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    }
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+    return jsonify({'token': token}), 200
 
 @app.route('/logout', methods=['POST'])
 def logout():

@@ -31,11 +31,15 @@ def create_inviting():
         db.session.add(new_user)
         db.session.commit()
 
-        send_email(
+        test = send_email(
             receipt=[email],
             link=ip + '/user?email={}'.format(email)
         )
 
+        if test:
+            return jsonify({'message': 'Inviting created!'}), 201
+        else:
+            return jsonify({'message': 'Email not sent!'}), 400
     except Exception as e:
         return jsonify({'message': str(e)}), 400
     

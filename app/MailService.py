@@ -20,10 +20,10 @@ def send_email(link, receipt):
     try:
         mail.send(msg)
         logging_service.log_info('Email sent!')
-        return jsonify({'message': 'Email sent successfully'}), 200
+        return True
     except Exception as e:
         logging_service.log_error(str(e))
-        return jsonify({'message': 'Email sending failed'}), 400
+        return False
     
     # try:
     #     mail.send(msg)

@@ -11,7 +11,7 @@ logging_service = LoggingService(app)
 def send_email():
     msg = Message(
         subject='Selamat Datang di Aplikasi VMS-SERELO',
-        recipients=request.form.get('email')
+        recipients=[request.form.get('email')]
     )
     link = request.form.get('link')
     msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'

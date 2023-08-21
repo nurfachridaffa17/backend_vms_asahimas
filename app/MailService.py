@@ -2,6 +2,10 @@ from flask_mail import Message
 from .models import db
 from . import mail
 from flask import jsonify
+from .log_service import LoggingService
+
+logging_service = LoggingService()
+
 
 def send_email(receipt, link):
     msg = Message(
@@ -15,9 +19,9 @@ def send_email(receipt, link):
 
     try:
         mail.send(msg)
-        return True
+        return logging_service.log_info('Email sent!'), 200
     except Exception as e:
-        return False
+        return logging_service.log_error(str(e)), 400
     
     # try:
     #     mail.send(msg)

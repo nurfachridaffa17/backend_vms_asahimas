@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_cors import CORS
+from .log_service import LoggingService
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -12,5 +13,6 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     CORS(app, supports_credentials=True)
+    LoggingService(app)
     from . import views
     return app

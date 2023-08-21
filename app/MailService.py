@@ -8,29 +8,28 @@ from . import app
 logging_service = LoggingService(app)
 
 
-def send_email():
+def send_email(link, receipt):
     msg = Message(
         subject='Selamat Datang di Aplikasi VMS-SERELO',
-        recipients=[request.form.get('email')]
+        recipients=[receipt]
     )
-    link = request.form.get('link')
     msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
     msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi</p>'
     msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
 
-    # try:
-    #     mail.send(msg)
-    #     logging_service.log_info('Email sent!')
-    #     return jsonify({'message': 'Email sent successfully'}), 200
-    # except Exception as e:
-    #     logging_service.log_error(str(e))
-    #     return jsonify({'message': 'Email sending failed'}), 400
-    
     try:
         mail.send(msg)
-        return jsonify({'message': 'Email sent!'}), 200
+        logging_service.log_info('Email sent!')
+        return jsonify({'message': 'Email sent successfully'}), 200
     except Exception as e:
-        return jsonify({'message': str(e)}), 400
+        logging_service.log_error(str(e))
+        return jsonify({'message': 'Email sending failed'}), 400
+    
+    # try:
+    #     mail.send(msg)
+    #     return jsonify({'message': 'Email sent!'}), 200
+    # except Exception as e:
+    #     return jsonify({'message': str(e)}), 400
 
 def send_email_accepted(sender, recipients, acceptor, access_area, tanggal, user, company, purpose, employee):
     msg = Message(

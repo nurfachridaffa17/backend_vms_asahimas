@@ -12,7 +12,6 @@ status = [
 ip = app.config['IP']
 
 def create_inviting():
-    user_id = session.get('user_id')
     email = request.form.get('email'),
     new_inviting = M_Inviting(
         is_active = 1,
@@ -34,12 +33,10 @@ def create_inviting():
         db.session.commit()
 
         send_email(
-            sender = app.config['MAIL_USERNAME'],
+            sender = 'nurfachridaffa17@gmail.com',
             recipients = [email],
             link = ip + '/user?emai={}'.format(email)
         )
-
-        return jsonify({'message': 'Create inviting success!'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 400
     

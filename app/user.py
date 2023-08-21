@@ -31,8 +31,8 @@ def create_user():
     return jsonify({'message': 'New user created!'}), 200
 
 
-def update_user(id):
-    user = M_User.query.filter_by(id=id).first()
+def update_user(email):
+    user = M_User.query.filter_by(email=email).first()
     if not user:
         return jsonify({'message': 'No user found!'}), 404
     
@@ -40,7 +40,6 @@ def update_user(id):
     os.makedirs(user_folder, exist_ok=True)
 
     try:
-        user.email = request.form.get('email')
         user.name = request.form.get('name')
         user.username = request.form.get('username')
         user.password = generate_password_hash(request.form.get('password'), method='scrypt')

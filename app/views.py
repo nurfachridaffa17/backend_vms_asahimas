@@ -49,12 +49,13 @@ def user_route():
 @app.route('/user', methods=['GET','PUT'])
 def get_update_user():
     id = request.args.get('id')  # Get the id from the query parameters
+    email = request.args.get('email')
     if id is None:
         return jsonify({'message': 'Missing user ID parameter'}), 400
     if request.method == 'GET':
         return get_user_by_id(id)
     elif request.method == 'PUT':
-        return update_user(id=id)
+        return update_user(email=email)
 
 @app.route('/api/v1/user/all', methods=['GET'])
 def get_all_user_route():

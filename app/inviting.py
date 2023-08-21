@@ -1,6 +1,7 @@
 from .models import db, M_Inviting, M_User
 from flask import request, jsonify, session
 import datetime
+from .MailService import send_email
 from . import app
 
 status = [
@@ -8,13 +9,15 @@ status = [
     'Not Approved'
 ]
 
+ip = app.config['IP']
+
 def create_inviting():
-    user_id = request.form.get('user_id'),
-    email_user = M_User.query.filter_by(id=user_id).first()
+    user_id = session.get('user_id')
+    email = request.form.get('email'),
     new_inviting = M_Inviting(
         is_active = 1,
-        user_id = user_id,
-        email = email_user.email,
+        # user_id = user_id,
+        email = email,
         access_area_id = request.form.get('access_area_id'),
         # datetime = request.form.get('datetime'),
         purpose = request.form.get('purpose'),
@@ -22,10 +25,21 @@ def create_inviting():
         status = status[1]
     )
 
+    new_user = M_User(
+        email = email,
+    )
     try:
         db.session.add(new_inviting)
+        db.session.add(new_user)
         db.session.commit()
-        return jsonify({'message': 'New inviting created!'}), 200
+
+        send_email(
+            sender = app.config['MAIL_USERNAME'],
+            recipients = [email],
+            link = ip + '/user?emai={}'.format(email)
+        )
+
+        return jsonify({'message': 'Create inviting success!'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 400
     

@@ -83,7 +83,7 @@ class M_Inviting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_by = db.Column(db.Integer)
     is_active = db.Column(db.Integer)
-    user_id = db.Column(db.Integer)
+    # user_id = db.Column(db.Integer)
     email = db.Column(db.String(255))
     access_area_id = db.Column(db.Integer)
     datetime = db.Column(db.DateTime)

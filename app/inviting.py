@@ -9,19 +9,16 @@ status = [
 ]
 
 def create_inviting():
-    now = datetime.datetime.now()
     user_id = request.form.get('user_id'),
     email_user = M_User.query.filter_by(id=user_id).first()
     new_inviting = M_Inviting(
-        created_at = now,
         is_active = 1,
         user_id = user_id,
         email = email_user.email,
         access_area_id = request.form.get('access_area_id'),
-        datetime = request.form.get('datetime'),
+        # datetime = request.form.get('datetime'),
         purpose = request.form.get('purpose'),
         is_approved = 0,
-        approved_by = None,
         status = status[1]
     )
 

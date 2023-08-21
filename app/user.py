@@ -1,5 +1,5 @@
 from .models import db,M_User
-from flask import request, jsonify
+from flask import request, jsonify, session
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -22,6 +22,7 @@ def create_user():
         photo = None,
         nik = None,
         other_document = None,
+        created_by = session.get('user_id')
     )
 
     db.session.add(new_user)

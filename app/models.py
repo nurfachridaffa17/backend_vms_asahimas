@@ -14,6 +14,7 @@ class M_User(db.Model):
     nik = db.Column(db.String(255))
     other_document = db.Column(db.String(255))
     photo = db.Column(db.String(255))
+    created_by = db.column(db.Integer)
 
     def __repr__(self):
         return '<M_User {}>'.format(self.name)
@@ -32,6 +33,7 @@ class M_User(db.Model):
             'nik': self.nik,
             'other_document': self.other_document,
             'photo': self.photo,
+            'created_by': self.created_by,
         }
 
 class M_UserType(db.Model):
@@ -88,7 +90,7 @@ class M_Inviting(db.Model):
     purpose = db.Column(db.String(255))
     is_approved = db.Column(db.Integer)
     approved_by = db.Column(db.Integer)
-    status = db.Column(db.Integer)
+    status = db.Column(db.String(255))
 
     def __repr__(self):
         return '<M_Inviting {}>'.format(self.id)

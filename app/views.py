@@ -12,24 +12,26 @@ from .transaction import create_transaction, get_all_transaction, get_transactio
 from .models import M_User, M_Card, M_UserType
 from werkzeug.security import generate_password_hash
 from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, approved_inviting, not_approved_inviting, delete_inviting
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
-    username = data.get('email')
-    password = data.get('password')
+    email = request.form.get('email')
+    password =request.form.get('password')
 
-    user = M_User.query.filter_by(email=username).first()
+    user = M_User.query.filter_by(email=email).first()
 
     if not user:
         return jsonify({'message': 'User not found'}), 401
-    
-    if not user.check_password(password):
-        return jsonify({'message': 'Invalid password'}), 401
-    
-    session['user_id'] = user.id
-    return jsonify({'message': 'Login success'}), 200
+
+    password_check = check_password_hash(user.password, password)
+
+    if password_check:
+        session['user_id'] = user.id
+        return jsonify({'message': 'Login successful!'}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -172,7 +174,7 @@ def delete_transaction_route():
     return delete_transaction(id=id)
 
 
-@app.route('/api/v1/create/invitiing', methods=['POST'])
+@app.route('/api/v1/create/inviting', methods=['POST'])
 def get_inviting():
     if request.method == 'POST':
         return create_inviting()
@@ -216,3 +218,5 @@ def reject_inviting_route():
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400
     return not_approved_inviting(id=id)
+
+

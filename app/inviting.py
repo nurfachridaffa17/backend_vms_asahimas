@@ -15,7 +15,6 @@ def create_inviting():
     email = request.form.get('email'),
     new_inviting = M_Inviting(
         is_active = 1,
-        # user_id = user_id,
         email = email,
         access_area_id = request.form.get('access_area_id'),
         # datetime = request.form.get('datetime'),
@@ -32,15 +31,11 @@ def create_inviting():
         db.session.add(new_user)
         db.session.commit()
 
-        test = send_email(
+        send_email(
             receipt=[email],
             link=ip + '/user?email={}'.format(email)
-            )
+        )
 
-        if test:
-            return jsonify({'message': 'Inviting created!'}), 201
-        else:
-            return jsonify({'message': 'Inviting created! But email not sent!'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 400
     

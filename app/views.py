@@ -224,7 +224,7 @@ def reject_inviting_route():
     return not_approved_inviting(id=id)
 
 
-@app.route('/api/v1/email', methods=['POST'])
-def get_email():
-    if request.method == 'POST':
-        return send_email()
+# @app.route('/api/v1/email', methods=['POST'])
+# def get_email():
+#     if request.method == 'POST':
+#         return send_email()

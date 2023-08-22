@@ -4,6 +4,7 @@ import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from . import app
+import base64
 
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
@@ -64,6 +65,9 @@ def update_user(email):
             other_document.save(os.path.join(user_folder, other_document.filename))
             save_other_document = user_folder + '/' + other_document.filename
             user.other_document = save_other_document
+
+            base64_image = base64.b64encode(photo.read())
+            user.photo_base64 = base64_image
 
         db.session.commit()
 

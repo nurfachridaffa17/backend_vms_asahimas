@@ -112,95 +112,69 @@ def get_inviting_by_id(id):
 
 
 def approved_inviting(id):
-    data_user = []
     inviting = M_Inviting.query.filter_by(id=id).first()
     get_name = M_User.query.filter_by(email=inviting.email).first()
-    # person_photo = get_name.
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
 
-    # user_id = session.get('user_id')
-    # if not user_id:
-    #     return jsonify({'message': 'Please login!'}), 401
-
     inviting.is_approved = 1
-    # inviting.approved_by = user_id
     inviting.status = status[0]
 
     url_api = app.config['URL_ENDPOINT'] + '/person/add'
     get_access_area = M_Inviting.query.filter_by(email=inviting.email).order_by(M_Inviting.id.desc()).first()
-    area = M_Access_Area.query.filter_by(id=get_access_area.access_area_id).first()
-    # if get_access_area.access_area_id == 1:
-    #     m_area = M_Access_Area.query.all()
-    #     for i in m_area:
-    #         area.append(i.access_area_zkteco)
-    # else:
-    #     m_area = M_Access_Area.query.filter_by(id=get_access_area.access_area_id).first()
-    #     area.append(m_area.access_area_zkteco)
 
-
-    # cookie = Zkteco.query.first()
+    cookie = Zkteco.query.first()
 
     headers = {
-        'Cookie' : "SESSION=OWUxNDgzZmItYTZlYi00OTYyLTgzZjUtMmQ1N2M1YmUxNzcy",
+        'Cookie' : cookie.cookie,
         'Content-Type' : 'application/json'
     }
 
     endtime = inviting.datetime + datetime.timedelta(hours=2)
 
+    if get_access_area.access_area_id == 1:
+        payload = json.dumps({
+            "accEndTime" : str(endtime),
+            "accStartTime" : str(inviting.datetime),
+            "accLevelIds": "4028d8cf89b514e60189b5166a92043a,4028d8cf8a16edf6018a1b397664002a",
+            "deptCode": 1,
+            "name": get_name.name,
+            "personPhoto" : get_name.photo_base64,
+            "pin": get_name.id
+        })
+        
     payload = json.dumps({
-        "accEndTime":  str(endtime),
-        "accStartTime": str(inviting.datetime),
-        "accLevelIds": str(area.access_area_zkteco),
-        "deptCode": "1",
-        "email": str(get_name.email),
-        # "isDisabled": False,
-        # "isSendMail": False,
-        "name": str(get_name.name),
-        # "personPhoto" : None,
-        "pin": str(get_name.id)
+        "accEndTime" : str(endtime),
+        "accStartTime" : str(inviting.datetime),
+        "accLevelIds": "4028d8cf8a16edf6018a1b397664002a",
+        "deptCode": 1,
+        "name": get_name.name,
+        "personPhoto" : get_name.photo_base64,
+        "pin": get_name.id
     })
 
     try:
-        response = requests.requests()
-        if response.status_code == 200:
-            response_data = response.json()  # Extract JSON data from the response
-            
-            if response_data["message"] != "success":
+        data = requests.post(url_api, headers=headers, data=payload)
+        if data.status_code == 200:
+            data = data.json()
+            if data["message"] != "success":
                 return jsonify({
-                    'code': response_data["code"],
-                    'message': response_data["message"]
-                }), 500
+                    'code' : data["code"],
+                    'message': data["message"]
+                    }), 500
             else:
+                db.session.commit()
                 return jsonify({
-                    'code': response_data["code"],
-                    'message': response_data["message"]
-                })
+                    'code' : data["code"],
+                    'message': data["message"]
+                }), 200
+
         else:
             return jsonify({
-                'code': response.status_code,
-                'message': response.reason
-            }), response.status_code
+                'code': data.status_code,
+            }), data.status_code
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
-
-    # try:
-    #     data = requests.post(url_api, headers=headers, data=payload)
-    #     return jsonify({"Message" : data}), 200
-        # if data.status_code == 200:
-        #     data = data.json()
-        #     if data["message"] != "success":
-        #         return jsonify({
-        #             'code' : data["code"],
-        #             'message': data["message"]
-        #             }), 500
-        #     else:
-        #         return jsonify({
-        #             'code' : data["code"],
-        #             'message': data["message"]
-        #         })
-    # except Exception as e:
-    #     return jsonify({'message': str(e)}), 500 
+        return jsonify({'message': str(e)}), 500 
 
 def hold_inviting(id):
     inviting = M_Inviting.query.filter_by(id=id).first()

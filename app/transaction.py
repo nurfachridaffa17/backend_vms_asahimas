@@ -36,7 +36,7 @@ def get_all_transaction():
         transaction_data = {}
         transaction_data['id'] = transaction.id
         transaction_data['card_id'] = transaction.card_id
-        transaction_data['name'] = transaction.name
+        transaction_data['user_id'] = transaction.user_id
         transaction_data['is_active'] = transaction.is_active
         transaction_data['check_in'] = transaction.check_in
         transaction_data['check_out'] = transaction.check_out

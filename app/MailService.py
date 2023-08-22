@@ -8,11 +8,13 @@ from . import app
 logging_service = LoggingService(app)
 
 
-def send_email(link, receipt):
+def send_email():
     msg = Message(
         subject='Selamat Datang di Aplikasi VMS-SERELO',
-        recipients=[receipt]
+        recipients=[request.form.get('email')]
+        # recipients=receipt
     )
+    link = request.form.get('link')
     msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
     msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi</p>'
     msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
@@ -20,10 +22,12 @@ def send_email(link, receipt):
     try:
         mail.send(msg)
         logging_service.log_info('Email sent!')
-        return True
+        return jsonify({'message': 'Email sent!'}), 200
+        # return True
     except Exception as e:
         logging_service.log_error(str(e))
-        return False
+        return jsonify({'message': str(e)}), 400
+        # return False
     
     # try:
     #     mail.send(msg)

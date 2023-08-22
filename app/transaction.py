@@ -5,7 +5,7 @@ import random
 
 def create_transaction():
     card_id = request.form.get('card_id')
-    name = request.form.get('name')
+    user_id = request.form.get('user_id')
     check_card = M_Card.query.filter_by(id=card_id).first()
     if check_card.is_used == 1:
         return jsonify({'message': 'Card is used!'}), 404
@@ -13,7 +13,7 @@ def create_transaction():
     try:
         new_transaction = T_Rfid(
             card_id = card_id,
-            name = name,
+            user_id = user_id,
             is_active = 1,
             check_in = datetime.datetime.now(),
         )

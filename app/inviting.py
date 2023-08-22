@@ -1,9 +1,11 @@
-from .models import db, M_Inviting, M_User
+from .models import db, M_Inviting, M_User, Zkteco, M_Access_Area
 from flask import request, jsonify, session
 import datetime
 from . import app
 from flask_mail import Message
 from . import mail
+import json
+import requests
 
 status = [
     'Approved',
@@ -48,7 +50,7 @@ def create_inviting():
         db.session.add(new_inviting)
         db.session.commit()
 
-        link = domain + path
+        link = domain + path + "?email=" + email
 
         # Send Email
         msg = Message(
@@ -111,7 +113,10 @@ def get_inviting_by_id(id):
 
 
 def approved_inviting(id):
+    area = []
     inviting = M_Inviting.query.filter_by(id=id).first()
+    get_name = M_User.query.filter_by(email=inviting.email).first()
+    # person_photo = get_name.
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
 
@@ -122,11 +127,63 @@ def approved_inviting(id):
     inviting.is_approved = 1
     # inviting.approved_by = user_id
     inviting.status = status[0]
+
+    url_api = app.config['URL_ENDPOINT'] + '/person/add'
+    get_access_area = M_Inviting.query.filter_by(email=inviting.email).order_by(M_Inviting.id.desc()).first()
+
+    if get_access_area.access_area_id == 1:
+        m_area = M_Access_Area.query.all()
+        for i in m_area:
+            area.append(i.access_area_zkteco)
+    else:
+        m_area = M_Access_Area.query.filter_by(id=get_access_area.access_area_id).first()
+        area.append(m_area.access_area_zkteco)
+
+
+    cookie = Zkteco.query.first()
+    headers = {
+        'Cookie' : cookie.cookie,
+        'Content-Type' : 'application/json'
+    }
+
+    payload = json.dumps({
+        "accEndTime":  '2023-08-18 09:02:09.702',
+        "accStartTime": '2023-08-18 09:02:09.702',
+        "accLevelIds": ['4028d8cf89b514e60189b5166a92043a', '4028d8cf8a16edf6018a1b397664002a'],
+        "birthday": None,
+        "carPlate": None,
+        "cardNo": None,
+        "certNumber": None,
+        "certType": None,
+        "deptCode": 1,
+        "email": 'irsan@solu.co.id',
+        "gender": None,
+        "hireDate": None,
+        "isDisabled": False,
+        "isSendMail": False,
+        "lastName": None,
+        "leaveId": None,
+        "mobilePhone": None,
+        "name": 'irsan',
+        "personPhoto" : None,
+        "personPwd": None,
+        "pin": 32,
+        "ssn": None,
+        "supplyCards": None,
+    })
+
     try:
-        db.session.commit()
-        return jsonify({'message': 'Inviting approved!'}), 200
-    except:
-        return jsonify({'message': 'Inviting not approved!'}), 500
+        data = requests.post(url_api, headers=headers, data=payload)
+        if data.status_code == 200:
+            data = data.json()
+            if data["message"] != "success":
+                db.session.commit()
+                return jsonify({'code' : data["code"], 'message': data["message"]}), 500
+            else:
+                return jsonify({'code' : data["code"],'message': data["message"]}), 200
+        # return jsonify({'message': 'Inviting approved!'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 def hold_inviting(id):
     inviting = M_Inviting.query.filter_by(id=id).first()

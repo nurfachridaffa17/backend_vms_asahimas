@@ -30,6 +30,9 @@ def login():
     
     payload = {
         'user_id' : user.id,
+        'user_type_id' : user.user_type_id,
+        'user_name' : user.name,
+        'user_email' : user.email,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
@@ -51,8 +54,8 @@ def user_route():
 def get_update_user():
     id = request.args.get('id')  # Get the id from the query parameters
     email = request.args.get('email')
-    if id is None:
-        return jsonify({'message': 'Missing user ID parameter'}), 400
+    # if id is None:
+    #     return jsonify({'message': 'Missing user ID parameter'}), 400
     if request.method == 'GET':
         return get_user_by_id(id)
     elif request.method == 'PUT':
@@ -222,9 +225,3 @@ def reject_inviting_route():
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400
     return not_approved_inviting(id=id)
-
-
-# @app.route('/api/v1/email', methods=['POST'])
-# def get_email():
-#     if request.method == 'POST':
-#         return send_email()

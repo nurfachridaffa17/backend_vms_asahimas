@@ -1,8 +1,9 @@
 from .models import db, M_Inviting, M_User
 from flask import request, jsonify, session
 import datetime
-from .MailService import send_email
 from . import app
+from flask_mail import Message
+from . import mail
 
 status = [
     'Approved',
@@ -12,36 +13,42 @@ status = [
 ip = app.config['IP']
 
 def create_inviting():
-    email = request.form.get('email'),
+    email = request.form.get('email')
     new_inviting = M_Inviting(
-        is_active = 1,
-        email = email,
-        access_area_id = request.form.get('access_area_id'),
-        # datetime = request.form.get('datetime'),
-        purpose = request.form.get('purpose'),
-        is_approved = 0,
-        status = status[1]
+        is_active=1,
+        email=email,
+        access_area_id=request.form.get('access_area_id'),
+        # datetime=request.form.get('datetime'),
+        purpose=request.form.get('purpose'),
+        is_approved=0,
+        status=status[1]
     )
 
     new_user = M_User(
-        email = email,
+        email=email,
     )
     try:
         db.session.add(new_inviting)
         db.session.add(new_user)
         db.session.commit()
 
-        test = send_email(
-            receipt=email,
-            link=ip+'/user?email={}'.format(email)
-        )
+        link = 'http://' + ip + "/user?" + email
 
-        if test:
-            return jsonify({'message': 'Inviting created!'}), 201
-        else:
-            return jsonify({'message': 'Email not sent!'}), 400
+        # Send Email
+        msg = Message(
+            subject='Selamat Datang di Aplikasi VMS-SERELO',
+            recipients=[email]
+        )
+        msg.html = '<p>Anda telah diundang oleh PT.ASAHIMAS untuk bergabung di Aplikasi VMS-SERELO</p>'
+        msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi</p>'
+        msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
+        mail.send(msg)
+
+        return jsonify({'message': 'Email sent!'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 400
+
+        
     
 def get_all_inviting():
     invitings = M_Inviting.query.all()

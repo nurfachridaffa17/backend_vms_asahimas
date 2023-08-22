@@ -112,6 +112,7 @@ class M_Access_Area(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Integer)
     name = db.Column(db.String(255))
+    access_area_zkteco = db.Column(db.String(255))
 
     def __repr__(self):
         return '<M_Access_Area {}>'.format(self.id)
@@ -145,4 +146,9 @@ class T_Rfid(db.Model):
             'check_in': self.check_in,
             'check_out': self.check_out,
         }
+
+class Zkteco(db.Model):
+    __tablename__ = 'zkteco'
+    id = db.Column(db.Integer, primary_key=True)
+    cookie = db.Column(db.String(255))
 

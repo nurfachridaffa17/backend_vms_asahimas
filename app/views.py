@@ -30,7 +30,7 @@ def login():
     
     payload = {
         'user_id' : user.id,
-        'user_type_id' : user.user_type_id,
+        'id_usertype' : user.id_usertype,
         'user_name' : user.name,
         'user_email' : user.email,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)

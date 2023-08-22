@@ -1,0 +1,8 @@
+app/static/*
+__pycache__/*
+*.pyc
+docker-compose.yml
+Dockerfile
+config.py
+app/__pycache__/*
+app.log

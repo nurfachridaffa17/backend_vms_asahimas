@@ -15,6 +15,7 @@ class M_User(db.Model):
     other_document = db.Column(db.String(255))
     photo = db.Column(db.String(255))
     created_by = db.column(db.Integer)
+    photo_base64 = db.Column(db.String)
 
     def __repr__(self):
         return '<M_User {}>'.format(self.name)
@@ -34,6 +35,7 @@ class M_User(db.Model):
             'other_document': self.other_document,
             'photo': self.photo,
             'created_by': self.created_by,
+            'photo_base64': self.photo_base64,
         }
 
 class M_UserType(db.Model):

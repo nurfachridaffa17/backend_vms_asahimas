@@ -118,12 +118,10 @@ def approved_inviting(id):
         return jsonify({'message': 'No inviting found!'}), 404
 
     inviting.is_approved = 1
-    # inviting.approved_by = user_id
     inviting.status = status[0]
 
     url_api = app.config['URL_ENDPOINT'] + '/person/add'
     get_access_area = M_Inviting.query.filter_by(email=inviting.email).order_by(M_Inviting.id.desc()).first()
-    area = M_Access_Area.query.filter_by(id=get_access_area.access_area_id).first()
 
     cookie = Zkteco.query.first()
 
@@ -134,13 +132,24 @@ def approved_inviting(id):
 
     endtime = inviting.datetime + datetime.timedelta(hours=2)
 
+    if get_access_area.access_area_id == 1:
+        payload = json.dumps({
+            "accEndTime" : str(endtime),
+            "accStartTime" : str(inviting.datetime),
+            "accLevelIds": "4028d8cf89b514e60189b5166a92043a,4028d8cf8a16edf6018a1b397664002a",
+            "deptCode": 1,
+            "name": get_name.name,
+            "personPhoto" : get_name.photo_base64,
+            "pin": get_name.id
+        })
+        
     payload = json.dumps({
         "accEndTime" : str(endtime),
         "accStartTime" : str(inviting.datetime),
-        "accLevelIds": request.form.get('accLevelIds'),
+        "accLevelIds": "4028d8cf8a16edf6018a1b397664002a",
         "deptCode": 1,
         "name": get_name.name,
-        # "personPhoto" : request.form.get('personPhoto'),
+        "personPhoto" : get_name.photo_base64,
         "pin": get_name.id
     })
 
@@ -154,10 +163,12 @@ def approved_inviting(id):
                     'message': data["message"]
                     }), 500
             else:
+                db.session.commit()
                 return jsonify({
                     'code' : data["code"],
                     'message': data["message"]
-                })
+                }), 200
+
         else:
             return jsonify({
                 'code': data.status_code,

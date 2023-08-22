@@ -239,7 +239,7 @@ def delete_inviting_route(id):
     return delete_inviting(id=id)
 
 
-@app.route('/api/v1/inviting/accept', methods=['PUT'])
+@app.route('/api/v1/inviting/accept', methods=['POST'])
 # @token_required
 def accept_inviting_route():
     id = request.args.get('id')

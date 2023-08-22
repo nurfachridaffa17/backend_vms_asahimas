@@ -26,6 +26,8 @@ def check_user_inviting(email):
 
 def create_inviting():
     email = request.form.get('email')
+    domain = request.form.get('domain')
+    path = request.form.get('path')
     new_inviting = M_Inviting(
         is_active=1,
         email=email,
@@ -46,7 +48,7 @@ def create_inviting():
         db.session.add(new_inviting)
         db.session.commit()
 
-        link = 'http://' + ip + "/user?" + email
+        link = domain + path
 
         # Send Email
         msg = Message(

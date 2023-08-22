@@ -35,8 +35,10 @@ def update_user(email):
     user = M_User.query.filter_by(email=email).first()
     if not user:
         return jsonify({'message': 'No user found!'}), 404
+
+    get_id_user = M_User.query.filter_by(email=email).first()
     
-    user_folder = get_user_folder_path(id)
+    user_folder = get_user_folder_path(get_id_user.id)
     os.makedirs(user_folder, exist_ok=True)
 
     try:
@@ -90,8 +92,8 @@ def get_all_user():
 
     return jsonify({'users': output}), 200
 
-def get_user_by_id(id):
-    user = M_User.query.filter_by(id=id).first()
+def get_user_by_id(email):
+    user = M_User.query.filter_by(email=email).first()
 
     if not user:
         return jsonify({'message': 'No user found!'}), 404

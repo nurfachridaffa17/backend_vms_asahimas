@@ -53,19 +53,24 @@ def get_card_by_id(id):
     return jsonify({'card': card_data}), 200
 
 def get_card_not_use():
-    check_card = M_Card.query.filter_by(is_used=0).first()
-    if not check_card:
-        return jsonify({'message': 'No card found!'}), 404
-    
-    card_data = {}
-    card_data['id'] = check_card.id
-    card_data['card_number'] = check_card.card_number
-    card_data['name'] = check_card.name
-    card_data['created_at'] = check_card.created_at
-    card_data['is_active'] = check_card.is_active
-    card_data['is_used'] = check_card.is_used
+    unused_cards = M_Card.query.filter_by(is_used=0).all()
 
-    return jsonify({'card': card_data}), 200
+    if not unused_cards:
+        return jsonify({'message': 'No unused cards found!'}), 404
+
+    cards_data = []
+    for card in unused_cards:
+        card_data = {
+            'id': card.id,
+            'card_number': card.card_number,
+            'name': card.name,
+            'created_at': card.created_at,
+            'is_active': card.is_active,
+            'is_used': card.is_used
+        }
+        cards_data.append(card_data)
+
+    return jsonify({'cards': cards_data}), 200
 
 def update_card(id):
     card = M_Card.query.filter_by(id=id).first()

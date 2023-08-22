@@ -11,12 +11,39 @@ from .access_area import create_access_area, get_all_access_area, get_access_are
 from .transaction import create_transaction, get_all_transaction, get_transaction_by_id, transaction_check_out, delete_transaction
 from .models import M_User, M_Card, M_UserType
 from werkzeug.security import generate_password_hash
-from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, approved_inviting, not_approved_inviting, delete_inviting
+from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, approved_inviting, not_approved_inviting, delete_inviting, hold_inviting
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from .MailService import send_email
+from functools import wraps
 
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        # jwt is passed in the request header
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        # return 401 if token is not passed
+        if not token:
+            return jsonify({'message' : 'Token is missing !!'}), 401
+  
+        try:
+            # decoding the payload to fetch the stored details
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = M_User.query\
+                .filter_by(id = data['id'])\
+                .first()
+        except:
+            return jsonify({
+                'message' : 'Token is invalid !!'
+            }), 401
+        # returns the current logged in users context to the routes
+        return  f(current_user, *args, **kwargs)
+  
+    return decorated
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -36,6 +63,7 @@ def login():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+    session['user_id'] = user.id
 
     return jsonify({'token': token}), 200
 
@@ -52,12 +80,12 @@ def user_route():
 
 @app.route('/user', methods=['GET','PUT'])
 def get_update_user():
-    id = request.args.get('id')  # Get the id from the query parameters
+    # id = request.args.get('id')  # Get the id from the query parameters
     email = request.args.get('email')
     # if id is None:
     #     return jsonify({'message': 'Missing user ID parameter'}), 400
     if request.method == 'GET':
-        return get_user_by_id(id)
+        return get_user_by_id(email)
     elif request.method == 'PUT':
         return update_user(email=email)
 
@@ -212,6 +240,7 @@ def delete_inviting_route(id):
 
 
 @app.route('/api/v1/inviting/accept', methods=['PUT'])
+# @token_required
 def accept_inviting_route():
     id = request.args.get('id')
     if id is None:
@@ -220,8 +249,17 @@ def accept_inviting_route():
 
 
 @app.route('/api/v1/inviting/reject', methods=['PUT'])
+# @token_required
 def reject_inviting_route():
     id = request.args.get('id')
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400
     return not_approved_inviting(id=id)
+
+@app.route('/api/v1/inviting/hold', methods=['PUT'])
+# @token_required
+def hold_inviting_route():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing inviting ID parameter'}), 400
+    return hold_inviting(id=id)

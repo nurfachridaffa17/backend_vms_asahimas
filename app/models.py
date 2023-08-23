@@ -4,7 +4,7 @@ class M_User(db.Model):
     __tablename__ = 'm_user'
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime)
-    is_active = db.Column(db.Integer)
+    supervisor = db.Column(db.Integer)
     id_usertype = db.Column(db.Integer)
     name = db.Column(db.String(255))
     username = db.Column(db.String(255))
@@ -14,8 +14,7 @@ class M_User(db.Model):
     nik = db.Column(db.String(255))
     other_document = db.Column(db.String(255))
     photo = db.Column(db.String(255))
-    created_by = db.column(db.Integer)
-    photo_base64 = db.Column(db.String)
+    photo_base64 = db.Column(db.Text)
 
     def __repr__(self):
         return '<M_User {}>'.format(self.name)
@@ -24,7 +23,7 @@ class M_User(db.Model):
         return {
             'id': self.id,
             'created_at': self.created_at,
-            'is_active': self.is_active,
+            'supervisor': self.supervisor,
             'id_usertype': self.id_usertype,
             'name': self.name,
             'username': self.username,
@@ -34,7 +33,6 @@ class M_User(db.Model):
             'nik': self.nik,
             'other_document': self.other_document,
             'photo': self.photo,
-            'created_by': self.created_by,
             'photo_base64': self.photo_base64,
         }
 
@@ -85,7 +83,6 @@ class M_Inviting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_by = db.Column(db.Integer)
     is_active = db.Column(db.Integer)
-    # user_id = db.Column(db.Integer)
     email = db.Column(db.String(255))
     access_area_id = db.Column(db.Integer)
     datetime = db.Column(db.DateTime)

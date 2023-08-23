@@ -1,30 +1,88 @@
-from .models import db, M_User, M_UserType, M_Access_Area, M_Card, T_Rfid, M_Inviting
+from .models import db,M_User,M_UserType,M_Access_Area,M_Card, T_Rfid,M_Inviting,Zkteco
 from flask import request, jsonify
 import datetime
 import random
+from . import app
+import json
+import requests
 
 def create_transaction():
     card_id = request.form.get('card_id')
     user_id = request.form.get('user_id')
+
+    url = app.config['URL_ENDPOINT'] + "/person/addPersonnelBasicInfo"
+
     check_card = M_Card.query.filter_by(id=card_id).first()
     if check_card.is_used == 1:
         return jsonify({'message': 'Card is used!'}), 404
     
+    payload = json.dumps({
+        "cardNo" : str(check_card.card_number),
+        "pin": user_id
+    })
+
+    cookie = Zkteco.query.first()
+
+    headers = {
+        'Cookie' : cookie.cookie,
+        'Content-Type' : 'application/json'
+    }
+
+    # try:
+    #     data = requests.post(url, headers=headers, data=payload)
+    #     if data.status_code == 200:
+    #         data = data.json()
+    #         if data["message"] != "success":
+    #             return jsonify({
+    #                 'code' : data["code"],
+    #                 'message': data["message"]
+    #                 }), 500
+    #         else:
+    #             db.session.commit()
+    #             return jsonify({
+    #                 'code' : data["code"],
+    #                 'message': data["message"]
+    #             }), 200
+
+    #     else:
+    #         return jsonify({
+    #             'code': data.status_code,
+    #         }), data.status_code
+    # except Exception as e:
+    #     return jsonify({'message': str(cookie.cookie)}), 500 
+    
     try:
-        new_transaction = T_Rfid(
-            card_id = card_id,
-            user_id = user_id,
-            is_active = 1,
-            check_in = datetime.datetime.now(),
-        )
+        data = requests.post(url, headers=headers, data=payload)
+        if data.status_code == 200:
+            data = data.json()
+            if data["message"] != "success":
+                return jsonify({
+                    'code' : data["code"],
+                    'message': data["message"]
+                    }), 500
+            else:
+                new_transaction = T_Rfid(
+                    card_id = card_id,
+                    user_id = user_id,
+                    is_active = 1,
+                    check_in = datetime.datetime.now(),
+                )
 
-        check_card.is_used = 1
+                check_card.is_used = 1
+                db.session.add(new_transaction)
+                db.session.commit()
+                return jsonify({
+                    'code' : data["code"],
+                    'message': data["message"],
+                    'id' : new_transaction.id
+                }), 200
 
-        db.session.add(new_transaction)
-        db.session.commit()
-        return jsonify({'message': 'Change card is success!'}), 200
-    except:
-        return jsonify({'message': 'Change card is failed!'}), 404
+        else:
+            return jsonify({
+                'code': data.status_code,
+            }), data.status_code
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
     
 def get_all_transaction():
     transactions = T_Rfid.query.all()

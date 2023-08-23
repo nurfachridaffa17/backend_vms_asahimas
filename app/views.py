@@ -3,7 +3,7 @@ from . import app
 import os
 import json
 import requests
-from .user import create_user, get_all_user, get_user_by_id, update_user, delete_user
+from .user import create_user, get_all_user, get_user_by_id, update_user, delete_user, update_user_photo
 from .masterCard import create_card, get_all_card, get_card_by_id, update_card, delete_card, get_card_not_use
 from .usertype import create_usertype, get_all_usertype, get_usertype_by_id, update_usertype, delete_usertype
 from flask_login import login_required
@@ -20,6 +20,7 @@ from functools import wraps
 
 
 def token_required(f):
+    @wraps(f)  # This preserves the original function's metadata
     def decorated(*args, **kwargs):
         token = None
 
@@ -57,7 +58,6 @@ def login():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-
     return jsonify({'token': token}), 200
 
 @app.route('/logout', methods=['POST'])
@@ -82,6 +82,14 @@ def get_update_user():
         return get_user_by_id(email)
     elif request.method == 'PUT':
         return update_user(email=email)
+
+@app.route('/user/update', methods=['PUT'])
+@token_required
+def update_user_route_by_id(current_user):
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing user ID parameter'}), 400
+    return update_user_photo(id=id)
 
 @app.route('/api/v1/user/all', methods=['GET'])
 def get_all_user_route():
@@ -206,9 +214,9 @@ def delete_transaction_route():
 @app.route('/api/v1/create/inviting', methods=['POST'])
 @token_required
 def get_inviting(current_user):
-    current_user = current_user.id
+    user_id = current_user.id
     if request.method == 'POST':
-        return create_inviting(current_user=current_user)
+        return create_inviting(id_user=user_id)
 
 
 @app.route('/api/v1/inviting/all', methods=['GET'])
@@ -235,14 +243,14 @@ def delete_inviting_route(id):
     return delete_inviting(id=id)
 
 
-@app.route('/api/v1/inviting/accept', methods=['POST'])
+@app.route('/api/v1/inviting/accept', methods=['PUT'])
 @token_required
 def accept_inviting_route(current_user):
     user_id = current_user.id
     id = request.args.get('id')
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400
-    return approved_inviting(id=id)
+    return approved_inviting(id=id, id_user=user_id)
 
 
 @app.route('/api/v1/inviting/reject', methods=['PUT'])
@@ -251,14 +259,14 @@ def reject_inviting_route(current_user):
     id = request.args.get('id')
     user_id = current_user.id
     if id is None:
-        return jsonify({'message': user_id}), 400
+        return jsonify({'message': 'Missing parameter ID'}), 400
     return not_approved_inviting(id=id, id_user=user_id)
 
 @app.route('/api/v1/inviting/hold', methods=['PUT'])
 @token_required
 def hold_inviting_route(current_user):
-    user_id = current_user.id
     id = request.args.get('id')
+    user_id = current_user.id
     if id is None:
-        return jsonify({'message': 'Missing inviting ID parameter'}), 400
-    return hold_inviting(id=id)
+        return jsonify({'message': 'Missing parameter ID'}), 400
+    return hold_inviting(id=id, id_user=user_id)

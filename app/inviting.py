@@ -26,7 +26,8 @@ def check_user_inviting(email):
         return True
 
 
-def create_inviting(current_user):
+def create_inviting(id_user):
+    user_id = id_user
     email = request.form.get('email')
     domain = request.form.get('domain')
     path = request.form.get('path')
@@ -37,14 +38,15 @@ def create_inviting(current_user):
         datetime=request.form.get('datetime'),
         purpose=request.form.get('purpose'),
         is_approved=0,
-        status=status[2]
+        status=status[2],
+        created_by = user_id
     )
 
     if check_user_inviting(email):
         new_user = M_User(
             email=email,
             id_usertype = 3,
-            created_by = current_user
+            created_by = user_id,
         )
         db.session.add(new_user)
     try:
@@ -134,42 +136,65 @@ def approved_inviting(id, id_user):
 
     endtime = inviting.datetime + datetime.timedelta(hours=2)
 
+
     if get_access_area.access_area_id == 1:
         payload = json.dumps({
             "accEndTime" : str(endtime),
             "accStartTime" : str(inviting.datetime),
-            "accLevelIds": "4028d8cf89b514e60189b5166a92043a,4028d8cf8a16edf6018a1b397664002a",
+            "accLevelIds": "4028d8cf8a16edf6018a1b397664002a,4028d8cf89b514e60189b5166a92043a",
             "deptCode": 1,
             "name": get_name.name,
             "personPhoto" : get_name.photo_base64,
             "pin": get_name.id
         })
-        
-    payload = json.dumps({
-        "accEndTime" : str(endtime),
-        "accStartTime" : str(inviting.datetime),
-        "accLevelIds": "4028d8cf8a16edf6018a1b397664002a",
-        "deptCode": 1,
-        "name": get_name.name,
-        "personPhoto" : get_name.photo_base64,
-        "pin": get_name.id
-    })
+    else: 
+        payload = json.dumps({
+            "accEndTime" : str(endtime),
+            "accStartTime" : str(inviting.datetime),
+            "accLevelIds": "4028d8cf89b514e60189b5166a92043a",
+            "deptCode": 1,
+            "name": get_name.name,
+            "personPhoto" : str(get_name.photo_base64),
+            "pin": get_name.id
+        })
 
     try:
         data = requests.post(url_api, headers=headers, data=payload)
         if data.status_code == 200:
             data = data.json()
             if data["message"] != "success":
-                return jsonify({
-                    'code' : data["code"],
-                    'message': data["message"]
-                    }), 500
+                return jsonify({'code' : data["code"],'message': data["message"]}), 500
             else:
                 db.session.commit()
-                return jsonify({
-                    'code' : data["code"],
-                    'message': data["message"]
-                }), 200
+                msg_vst = Message(
+                    subject='STATUS REGISTRASI VMS - DISETUJUI',
+                    recipients=[inviting.email]
+                    )
+                datetime_obj = datetime.strptime(inviting.datetime, "%d%b%Y%H%M%S")
+                msg_vst.html = '<p>Undangan anda disetujui.</p>'
+                msg_vst.html += '<p>Silahkan berkunjung pada waktu yang telah ditentukan.</p>'
+                msg_vst.html += '<p>Waktu Kunjungan : {}</p>'.format(datetime_obj)
+
+                id_inviter = inviting.created_by
+                get_inviter = M_User.query.filter_by(id=id_inviter).first()
+                email_inviter = get_inviter.email
+
+                id_supervisor = M_User.query.filter_by(id=get_inviter.created_by).first()
+                email_supervisor = id_supervisor.email
+
+                msg_inviter = Message(
+                    subject='STATUS REGISTRASI VMS - DISETUJUI',
+                    recipients=[email_inviter],
+                    cc = [email_supervisor]
+                )
+                datetime_obj = datetime.strptime(inviting.datetime, "%d%b%Y%H%M%S")
+                msg_vst.html = '<p>Tamu bernama {} akan berkunjung menemui {}.</p>'.format(get_name.name, get_inviter.name)
+                msg_vst.html += '<p>Waktu Kunjungan : {}</p>'.format(datetime_obj)
+
+                mail.send(msg_vst)
+                mail.send(msg_inviter)
+
+                return jsonify({'code' : data["code"],'message': data["message"]}), 200
 
         else:
             return jsonify({
@@ -178,36 +203,51 @@ def approved_inviting(id, id_user):
     except Exception as e:
         return jsonify({'message': str(e)}), 500 
 
-def hold_inviting(id):
+def hold_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
+    get_name = M_User.query.filter_by(email=inviting.email).first()
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
 
-    # user_id = session.get('user_id')
-    # if not user_id:
-    #     return jsonify({'message': 'Please login!'}), 401
-
     inviting.is_approved = 0
-    # inviting.approved_by = user_id
+    inviting.approved_by = id_user
     inviting.status = status[3]
     link = 'http://' + ip + "/user?" + inviting.email
-    msg = Message(
-            subject='UPDATE STATUS REGISTRASI VMS',
+    msg_vst = Message(
+            subject='UPDATE STATUS REGISTRASI VMS - REVISI',
             recipients=[inviting.email]
         )
-    msg.html = '<p>Anda diminta untuk memperbaiki dokumen untuk kunjungan.</p>'
-    msg.html += '<p>Silahkan klik link berikut untuk memperbaiki dokumen.</p>'
-    msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
+    msg_vst.html = '<p>Anda diminta untuk memperbaiki dokumen untuk kunjungan.</p>'
+    msg_vst.html += '<p>Silahkan klik link berikut untuk memperbaiki dokumen.</p>'
+    msg_vst.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
+
+    id_inviter = inviting.created_by
+    get_inviter = M_User.query.filter_by(id=id_inviter).first()
+    email_inviter = get_inviter.email
+
+    id_supervisor = M_User.query.filter_by(id=get_inviter.supervisor).first()
+    email_supervisor = id_supervisor.email
+
+    # return jsonify({'message' : str(email_supervisor)}), 200
+
+    msg_inviter = Message(
+        subject='STATUS REGISTRASI VMS - REVISI',
+        recipients=[email_inviter],
+        cc = [email_supervisor]
+    )
+    msg_inviter.html = '<p>Tamu bernama {} perlu melakukan revisi dokumen.</p>'.format(get_name.name)
     try:
         db.session.commit()
-        mail.send(msg)
+        mail.send(msg_vst)
+        mail.send(msg_inviter)
         return jsonify({'message': 'Invite Was Hold!'}), 200
-    except:
-        return jsonify({'message': 'Inviting not approved!'}), 500
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 
 def not_approved_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
+    get_name = M_User.query.filter_by(email=inviting.email).first()
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
 
@@ -215,14 +255,30 @@ def not_approved_inviting(id, id_user):
     inviting.approved_by = id_user
     inviting.status = status[1]
     msg = Message(
-            subject='UPDATE STATUS REGISTRASI VMS',
+            subject='UPDATE STATUS REGISTRASI VMS - DITOLAK',
             recipients=[inviting.email]
         )
     msg.html = '<p>Dokumen kunjungan anda ditolak.</p>'
     msg.html += '<p>Silahkan hubungi PIC anda untuk mengundang kembali dan siapkan dokumen sesuai dengan ketentuan.</p>'
+
+    id_inviter = inviting.created_by
+    get_inviter = M_User.query.filter_by(id=id_inviter).first()
+    email_inviter = get_inviter.email
+
+    id_supervisor = M_User.query.filter_by(id=get_inviter.supervisor).first()
+    email_supervisor = id_supervisor.email
+
+    msg_inviter = Message(
+        subject='STATUS REGISTRASI VMS - DITOLAK',
+        recipients=[email_inviter],
+        cc = [email_supervisor]
+    )
+    msg_inviter.html = '<p>Undangan anda untuk {} telah ditolak silakan kirim undangan kembali.</p>'.format(get_name.name, get_inviter.name)
+
     try:
         db.session.commit()
         mail.send(msg)
+        mail.send(msg_inviter)
         return jsonify({'message': 'Inviting not approved!'}), 200
     except:
         return jsonify({'message': 'Inviting not approved!'}), 500

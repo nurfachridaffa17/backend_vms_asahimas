@@ -26,7 +26,7 @@ def check_user_inviting(email):
         return True
 
 
-def create_inviting():
+def create_inviting(current_user):
     email = request.form.get('email')
     domain = request.form.get('domain')
     path = request.form.get('path')
@@ -43,7 +43,8 @@ def create_inviting():
     if check_user_inviting(email):
         new_user = M_User(
             email=email,
-            id_usertype = 3
+            id_usertype = 3,
+            created_by = current_user
         )
         db.session.add(new_user)
     try:
@@ -209,10 +210,6 @@ def not_approved_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
-
-    # user_id = session.get('user_id')
-    # if not user_id:
-    #     return jsonify({'message': 'Please login!'}), 401
 
     inviting.is_approved = 0
     inviting.approved_by = id_user

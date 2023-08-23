@@ -67,16 +67,17 @@ def logout():
 
 
 @app.route('/api/v1/user/create', methods=['POST'])
-def user_route():
+@token_required
+def user_route(current_user):
+    user_id = current_user.id
     if request.method == 'POST':
-        return create_user()
+        return create_user(created_user=user_id)
 
 @app.route('/user', methods=['GET','PUT'])
 def get_update_user():
-    # id = request.args.get('id')  # Get the id from the query parameters
     email = request.args.get('email')
-    # if id is None:
-    #     return jsonify({'message': 'Missing user ID parameter'}), 400
+    if email is None:
+        return jsonify({'message': 'Missing user email parameter'}), 400
     if request.method == 'GET':
         return get_user_by_id(email)
     elif request.method == 'PUT':
@@ -203,9 +204,11 @@ def delete_transaction_route():
 
 
 @app.route('/api/v1/create/inviting', methods=['POST'])
-def get_inviting():
+@token_required
+def get_inviting(current_user):
+    current_user = current_user.id
     if request.method == 'POST':
-        return create_inviting()
+        return create_inviting(current_user=current_user)
 
 
 @app.route('/api/v1/inviting/all', methods=['GET'])
@@ -233,8 +236,9 @@ def delete_inviting_route(id):
 
 
 @app.route('/api/v1/inviting/accept', methods=['POST'])
-# @token_required
-def accept_inviting_route():
+@token_required
+def accept_inviting_route(current_user):
+    user_id = current_user.id
     id = request.args.get('id')
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400
@@ -251,8 +255,9 @@ def reject_inviting_route(current_user):
     return not_approved_inviting(id=id, id_user=user_id)
 
 @app.route('/api/v1/inviting/hold', methods=['PUT'])
-# @token_required
-def hold_inviting_route():
+@token_required
+def hold_inviting_route(current_user):
+    user_id = current_user.id
     id = request.args.get('id')
     if id is None:
         return jsonify({'message': 'Missing inviting ID parameter'}), 400

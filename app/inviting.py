@@ -26,7 +26,7 @@ def check_user_inviting(email):
         return True
 
 
-def create_inviting():
+def create_inviting(current_user):
     email = request.form.get('email')
     domain = request.form.get('domain')
     path = request.form.get('path')
@@ -43,7 +43,8 @@ def create_inviting():
     if check_user_inviting(email):
         new_user = M_User(
             email=email,
-            id_usertype = 3
+            id_usertype = 3,
+            created_by = current_user
         )
         db.session.add(new_user)
     try:
@@ -111,7 +112,7 @@ def get_inviting_by_id(id):
     return jsonify({'inviting': inviting_data}), 200
 
 
-def approved_inviting(id):
+def approved_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
     get_name = M_User.query.filter_by(email=inviting.email).first()
     if not inviting:
@@ -119,6 +120,7 @@ def approved_inviting(id):
 
     inviting.is_approved = 1
     inviting.status = status[0]
+    inviting.approved_by = id_user
 
     url_api = app.config['URL_ENDPOINT'] + '/person/add'
     get_access_area = M_Inviting.query.filter_by(email=inviting.email).order_by(M_Inviting.id.desc()).first()
@@ -204,17 +206,13 @@ def hold_inviting(id):
         return jsonify({'message': 'Inviting not approved!'}), 500
 
 
-def not_approved_inviting(id):
+def not_approved_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
     if not inviting:
         return jsonify({'message': 'No inviting found!'}), 404
 
-    # user_id = session.get('user_id')
-    # if not user_id:
-    #     return jsonify({'message': 'Please login!'}), 401
-
     inviting.is_approved = 0
-    # inviting.approved_by = user_id
+    inviting.approved_by = id_user
     inviting.status = status[1]
     msg = Message(
             subject='UPDATE STATUS REGISTRASI VMS',

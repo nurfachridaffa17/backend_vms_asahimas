@@ -9,7 +9,7 @@ import base64
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
-def create_user():
+def create_user(created_user):
     now = datetime.datetime.now()
     new_user = M_User(
         email = request.form.get('email'),
@@ -23,7 +23,7 @@ def create_user():
         photo = None,
         nik = None,
         other_document = None,
-        created_by = session.get('user_id')
+        created_by = created_user
     )
 
     db.session.add(new_user)

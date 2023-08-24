@@ -11,7 +11,7 @@ import requests
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
-def create_user(created_user):
+def create_user():
     now = datetime.datetime.now()
     new_user = M_User(
         email = request.form.get('email'),
@@ -24,7 +24,7 @@ def create_user(created_user):
         photo = None,
         nik = None,
         other_document = None,
-        supervisor = created_user
+        supervisor = 1
     )
 
     db.session.add(new_user)

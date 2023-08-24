@@ -145,7 +145,7 @@ def get_all_user():
         user_data['email'] = user.email
         user_data['password'] = user.password
         user_data['created_at'] = user.created_at
-        user_data['is_active'] = user.is_active
+        user_data['supervisor'] = user.supervisor
         user_data['name'] = user.name
         user_data['username'] = user.username
         user_data['company'] = user.company
@@ -165,9 +165,9 @@ def get_user_by_id(email):
     user_data = {}
     user_data['id'] = user.id
     user_data['email'] = user.email
+    user_data['supervisor'] = user.supervisor
     user_data['password'] = user.password
     user_data['created_at'] = user.created_at
-    user_data['is_active'] = user.is_active
     user_data['name'] = user.name
     user_data['username'] = user.username
     user_data['company'] = user.company

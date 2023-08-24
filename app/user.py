@@ -17,7 +17,6 @@ def create_user(created_user):
         email = request.form.get('email'),
         password = generate_password_hash(request.form.get('password'), method='scrypt'),
         created_at = now,
-        is_active = 1,
         name = request.form.get('name'),
         username = request.form.get('username'),
         company = request.form.get('company'),
@@ -25,7 +24,7 @@ def create_user(created_user):
         photo = None,
         nik = None,
         other_document = None,
-        supervisor_id = created_user
+        supervisor = created_user
     )
 
     db.session.add(new_user)

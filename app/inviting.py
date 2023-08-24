@@ -46,7 +46,7 @@ def create_inviting(id_user):
         new_user = M_User(
             email=email,
             id_usertype = 3,
-            created_by = user_id,
+            supervisor = user_id,
         )
         db.session.add(new_user)
     try:

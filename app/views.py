@@ -67,11 +67,9 @@ def logout():
 
 
 @app.route('/api/v1/user/create', methods=['POST'])
-@token_required
-def user_route(current_user):
-    user_id = current_user.id
+def user_route():
     if request.method == 'POST':
-        return create_user(created_user=user_id)
+        return create_user()
 
 @app.route('/user', methods=['GET','PUT'])
 def get_update_user():

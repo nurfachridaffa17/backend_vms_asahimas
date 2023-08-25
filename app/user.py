@@ -11,6 +11,12 @@ import requests
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
+def upload_file(file, user_id):
+    user_folder = get_user_folder_path(user_id)
+    os.makedirs(user_folder, exist_ok=True)
+    file.save(os.path.join(user_folder, file.filename))
+    return user_folder + '/' + file.filename
+
 def create_user():
     now = datetime.datetime.now()
     new_user = M_User(
@@ -42,6 +48,7 @@ def update_user(email):
     
     user_folder = get_user_folder_path(get_id_user.id)
     os.makedirs(user_folder, exist_ok=True)
+
     user.name = request.form.get('name')
     user.username = request.form.get('username')
     user.company = request.form.get('company')
@@ -50,29 +57,26 @@ def update_user(email):
     if password:
         user.password = generate_password_hash(password, method='scrypt')
 
-    if 'photo' in request.files:
-        photo = request.files['photo']
-        photo.save(os.path.join(user_folder, photo.filename))
-        save_photo = user_folder + '/' + photo.filename
-        user.photo = save_photo
-        file_path_image = os.path.join(user_folder, photo.filename)
-        with open(file_path_image, "rb") as img_file:
-            my_string = base64.b64encode(img_file.read())
-        user.photo_base64 = str(my_string.decode('utf-8'))
-    
-    if 'nik' in request.files:
-        nik = request.files['nik']
-        nik.save(os.path.join(user_folder, nik.filename))
-        save_nik = user_folder + '/' + nik.filename
-        user.nik = save_nik
-    
-    if 'other_document' in request.files:
-        other_document = request.files['other_document']
-        other_document.save(os.path.join(user_folder, other_document.filename))
-        save_other_document = user_folder + '/' + other_document.filename
-        user.other_document = save_other_document
-
     try:
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            save_foto = upload_file(photo, user.id)
+            user.photo = save_foto
+            file_path_image = os.path.join(user_folder, photo.filename)
+            with open(file_path_image, "rb") as img_file:
+                my_string = base64.b64encode(img_file.read())
+            user.photo_base64 = str(my_string.decode('utf-8'))
+        
+        if 'nik' in request.files:
+            nik = request.files['nik']
+            save_nik = upload_file(nik, user.id)
+            user.nik = save_nik
+        
+        if 'other_document' in request.files:
+            other_document = request.files['other_document']
+            save_other_document = upload_file(other_document, user.id)
+            user.other_document = save_other_document
+
         db.session.commit()
         return jsonify({'message': "Success save"}), 200
     except Exception as e:

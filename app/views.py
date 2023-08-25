@@ -17,6 +17,7 @@ import jwt
 import datetime
 from .MailService import send_email
 from functools import wraps
+from .cookies import update_cookies, get_all_cookies, get_cookies_by_id
 
 
 def token_required(f):
@@ -268,3 +269,21 @@ def hold_inviting_route(current_user):
     if id is None:
         return jsonify({'message': 'Missing parameter ID'}), 400
     return hold_inviting(id=id, id_user=user_id)
+
+@app.route('/api/v1/cookie', methods=['GET'])
+def get_cookie_data():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing parameter ID'}), 400
+    return get_cookies_by_id(id)
+
+@app.route('/api/v1/cookie/all', methods=['GET'])
+def get_all_cookie_data():
+    return get_all_cookies()
+
+@app.route('/api/v1/cookie', methods=['PUT'])
+def update_cookie_data():
+    id = request.args.get('id')
+    if id is None:
+        return jsonify({'message': 'Missing parameter ID'}), 400
+    return update_cookies(id)

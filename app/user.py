@@ -42,43 +42,42 @@ def update_user(email):
     
     user_folder = get_user_folder_path(get_id_user.id)
     os.makedirs(user_folder, exist_ok=True)
+    user.name = request.form.get('name')
+    user.username = request.form.get('username')
+    user.company = request.form.get('company')
+    password = request.form.get('password')
+
+    if password:
+        user.password = generate_password_hash(password, method='scrypt')
+
+    if 'photo' in request.files:
+        photo = request.files['photo']
+        photo.save(os.path.join(user_folder, photo.filename))
+        save_photo = user_folder + '/' + photo.filename
+        user.photo = save_photo
+        file_path_image = os.path.join(user_folder, photo.filename)
+        with open(file_path_image, "rb") as img_file:
+            my_string = base64.b64encode(img_file.read())
+        user.photo_base64 = str(my_string.decode('utf-8'))
+    
+    if 'nik' in request.files:
+        nik = request.files['nik']
+        nik.save(os.path.join(user_folder, nik.filename))
+        save_nik = user_folder + '/' + nik.filename
+        user.nik = save_nik
+    
+    if 'other_document' in request.files:
+        other_document = request.files['other_document']
+        other_document.save(os.path.join(user_folder, other_document.filename))
+        save_other_document = user_folder + '/' + other_document.filename
+        user.other_document = save_other_document
 
     try:
-        user.name = request.form.get('name')
-        user.username = request.form.get('username')
-        user.company = request.form.get('company')
-        password = request.form.get('password')
-
-        if password :
-            user.password = generate_password_hash(password, method='scrypt')
-
-        if 'photo' in request.files:
-            photo = request.files['photo']
-            photo.save(os.path.join(user_folder, photo.filename))
-            save_photo = user_folder + '/' + photo.filename
-            user.photo = save_photo
-            file_path_image = os.path.join(user_folder, photo.filename)
-            with open(file_path_image, "rb") as img_file:
-                my_string = base64.b64encode(img_file.read())
-            user.photo_base64 = str(my_string.decode('utf-8'))
-        
-        if 'nik' in request.files:
-            nik = request.files['nik']
-            nik.save(os.path.join(user_folder, nik.filename))
-            save_nik = user_folder + '/' + nik.filename
-            user.nik = save_nik
-        
-        if 'other_document' in request.files:
-            other_document = request.files['other_document']
-            other_document.save(os.path.join(user_folder, other_document.filename))
-            save_other_document = user_folder + '/' + other_document.filename
-            user.other_document = save_other_document
-        
         db.session.commit()
-
         return jsonify({'message': "Success save"}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 400
+
 
 
 def update_user_photo(id):

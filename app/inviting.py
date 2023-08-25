@@ -228,7 +228,7 @@ def hold_inviting(id, id_user):
     id_supervisor = M_User.query.filter_by(id=get_inviter.supervisor).first()
     email_supervisor = id_supervisor.email
 
-    # return jsonify({'message' : str(email_supervisor)}), 200
+    # return jsonify({'message' : str(user_spv)}), 200
 
     msg_inviter = Message(
         subject='STATUS REGISTRASI VMS - REVISI',

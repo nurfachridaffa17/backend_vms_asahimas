@@ -39,7 +39,6 @@ class M_User(db.Model):
 class M_UserType(db.Model):
     __tablename__ = 'm_usertype'
     id = db.Column(db.Integer, primary_key=True)
-    created_uid = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     is_active = db.Column(db.Integer)
     name = db.Column(db.String(255))
@@ -53,7 +52,6 @@ class M_UserType(db.Model):
             'created_at': self.created_at,
             'is_active': self.is_active,
             'name': self.name,
-            'created_uid': self.created_uid,
         }
 
 class M_Card(db.Model):

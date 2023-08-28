@@ -148,4 +148,5 @@ class Zkteco(db.Model):
     __tablename__ = 'zkteco'
     id = db.Column(db.Integer, primary_key=True)
     cookie = db.Column(db.String(255))
+    ip = db.Column(db.String(255))
 

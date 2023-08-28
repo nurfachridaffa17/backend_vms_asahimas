@@ -169,7 +169,8 @@ def approved_inviting(id, id_user):
                     subject='STATUS REGISTRASI VMS - DISETUJUI',
                     recipients=[inviting.email]
                     )
-                datetime_obj = datetime.strptime(inviting.datetime, "%d%b%Y%H%M%S")
+                datetime_str = str(inviting.datetime)
+                datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
                 msg_vst.html = '<p>Undangan anda disetujui.</p>'
                 msg_vst.html += '<p>Silahkan berkunjung pada waktu yang telah ditentukan.</p>'
                 msg_vst.html += '<p>Waktu Kunjungan : {}</p>'.format(datetime_obj)
@@ -178,7 +179,7 @@ def approved_inviting(id, id_user):
                 get_inviter = M_User.query.filter_by(id=id_inviter).first()
                 email_inviter = get_inviter.email
 
-                id_supervisor = M_User.query.filter_by(id=get_inviter.created_by).first()
+                id_supervisor = M_User.query.filter_by(id=get_inviter.supervisor).first()
                 email_supervisor = id_supervisor.email
 
                 msg_inviter = Message(
@@ -186,12 +187,12 @@ def approved_inviting(id, id_user):
                     recipients=[email_inviter],
                     cc = [email_supervisor]
                 )
-                datetime_obj = datetime.strptime(inviting.datetime, "%d%b%Y%H%M%S")
+                # datetime_obj = datetime.datetime.strptime(inviting.datetime, "%d%b%Y%H%M%S")
                 msg_vst.html = '<p>Tamu bernama {} akan berkunjung menemui {}.</p>'.format(get_name.name, get_inviter.name)
                 msg_vst.html += '<p>Waktu Kunjungan : {}</p>'.format(datetime_obj)
 
-                mail.send(msg_vst)
-                mail.send(msg_inviter)
+                # mail.send(msg_vst)
+                # mail.send(msg_inviter)
 
                 return jsonify({'code' : data["code"],'message': data["message"]}), 200
 

@@ -87,7 +87,10 @@ def update_user(email):
 
 
 def update_user_photo(id):
-    url = app.config['URL_ENDPOINT'] + "/person/updatePersonnelPhoto"
+
+    get_zkteco = Zkteco.query.first()
+
+    url = get_zkteco.ip + "/person/updatePersonnelPhoto"
 
     user = M_User.query.filter_by(id=id).first()
 
@@ -112,10 +115,8 @@ def update_user_photo(id):
         "pin": user.id
     })
 
-    cookie = Zkteco.query.first()
-
     headers = {
-        'Cookie' : cookie.cookie,
+        'Cookie' : get_zkteco.cookie,
         'Content-Type' : 'application/json'
     }
 

@@ -10,7 +10,9 @@ def update_cookies(id):
     
     try:
         cookie = request.form.get('cookie')
+        ip = request.form.get('ip')
         cookie_id.cookie = cookie
+        cookie_id.ip = ip
         db.session.commit()
         return jsonify({'message': 'Cookies updated!'}), 200
     except Exception as e:
@@ -22,6 +24,7 @@ def get_all_cookies():
     for cookie in cookies:
         cookie_data = {}
         cookie_data['id'] = cookie.id
+        cookie_data['ip'] = cookie.ip
         cookie_data['cookie'] = cookie.cookie
         output.append(cookie_data)
 
@@ -35,6 +38,7 @@ def get_cookies_by_id(id):
 
     cookie_data = {}
     cookie_data['id'] = cookie.id
+    cookie_data['ip'] = cookie.ip
     cookie_data['cookie'] = cookie.cookie
 
     return jsonify({'cookie': cookie_data}), 200

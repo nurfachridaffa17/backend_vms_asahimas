@@ -10,7 +10,9 @@ def create_transaction():
     card_id = request.form.get('card_id')
     user_id = request.form.get('user_id')
 
-    url = app.config['URL_ENDPOINT'] + "/person/addPersonnelBasicInfo"
+    get_zkteco = Zkteco.query.first()
+
+    url = str(get_zkteco.ip) + "/person/addPersonnelBasicInfo"
 
     check_card = M_Card.query.filter_by(id=card_id).first()
     if check_card.is_used == 1:
@@ -21,10 +23,8 @@ def create_transaction():
         "pin": user_id
     })
 
-    cookie = Zkteco.query.first()
-
     headers = {
-        'Cookie' : cookie.cookie,
+        'Cookie' : get_zkteco.cookie,
         'Content-Type' : 'application/json'
     }
 

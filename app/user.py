@@ -8,6 +8,8 @@ import base64
 import json
 import requests
 
+base_url = "http://" + app.config['IP']
+
 def get_user_folder_path(user_id):
     return os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
@@ -154,9 +156,18 @@ def get_all_user():
         user_data['name'] = user.name
         user_data['username'] = user.username
         user_data['company'] = user.company
-        user_data['nik'] = user.nik
-        user_data['other_document'] = user.other_document
-        user_data['photo'] = user.photo
+        user_data['nik'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.nik).split('/')[-1]
+        }
+        user_data['other_document'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.other_document).split('/')[-1]
+        }
+        user_data['photo'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.photo).split('/')[-1]
+        }
         output.append(user_data)
 
     return jsonify({'users': output}), 200
@@ -176,9 +187,18 @@ def get_user_by_id(email):
     user_data['name'] = user.name
     user_data['username'] = user.username
     user_data['company'] = user.company
-    user_data['nik'] = user.nik
-    user_data['other_document'] = user.other_document
-    user_data['photo'] = user.photo
+    user_data['nik'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.nik).split('/')[-1]
+        }
+    user_data['other_document'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.other_document).split('/')[-1]
+        }
+    user_data['photo'] = {
+            "url": f"{base_url}/app/static/{user.id}",
+            "name": str(user.photo).split('/')[-1]
+        }
 
     return jsonify({'user': user_data}), 200
 

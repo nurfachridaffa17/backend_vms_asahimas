@@ -15,7 +15,6 @@ from .inviting import create_inviting, get_all_inviting, get_inviting_by_id, app
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
-from .MailService import send_email
 from functools import wraps
 from .cookies import update_cookies, get_all_cookies, get_cookies_by_id
 

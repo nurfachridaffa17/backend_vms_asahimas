@@ -97,11 +97,14 @@ class M_Inviting(db.Model):
             'id': self.id, 
             'created_by': self.created_by,
             'is_active': self.is_active,
-            'user_id': self.user_id,
             'email': self.email,
             'access_area_id': self.access_area_id,
             'datetime': self.datetime,
             'purpose': self.purpose,
+            'is_approved' : self.is_approved,
+            'approved_by' : self.approved_by,
+            'status' : self.status,
+
         }
 
 class M_Access_Area(db.Model):

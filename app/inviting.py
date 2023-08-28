@@ -57,6 +57,7 @@ def create_inviting(id_user):
 
         # Send Email
         msg = Message(
+            sender = "asahimasservice@gmail.com",
             subject='Selamat Datang di Aplikasi VMS',
             recipients=[email]
         )
@@ -166,6 +167,7 @@ def approved_inviting(id, id_user):
             else:
                 db.session.commit()
                 msg_vst = Message(
+                    sender = "asahimasservice@gmail.com",
                     subject='STATUS REGISTRASI VMS - DISETUJUI',
                     recipients=[inviting.email]
                     )
@@ -183,6 +185,7 @@ def approved_inviting(id, id_user):
                 email_supervisor = id_supervisor.email
 
                 msg_inviter = Message(
+                    sender = "asahimasservice@gmail.com",
                     subject='STATUS REGISTRASI VMS - DISETUJUI',
                     recipients=[email_inviter],
                     cc = [email_supervisor]
@@ -191,8 +194,8 @@ def approved_inviting(id, id_user):
                 msg_vst.html = '<p>Tamu bernama {} akan berkunjung menemui {}.</p>'.format(get_name.name, get_inviter.name)
                 msg_vst.html += '<p>Waktu Kunjungan : {}</p>'.format(datetime_obj)
 
-                # mail.send(msg_vst)
-                # mail.send(msg_inviter)
+                mail.send(msg_vst)
+                mail.send(msg_inviter)
 
                 return jsonify({'code' : data["code"],'message': data["message"]}), 200
 
@@ -214,8 +217,9 @@ def hold_inviting(id, id_user):
     inviting.status = status[3]
     link = 'http://' + ip + "/user?" + inviting.email
     msg_vst = Message(
-            subject='UPDATE STATUS REGISTRASI VMS - REVISI',
-            recipients=[inviting.email]
+        sender = "asahimasservice@gmail.com",
+        subject='UPDATE STATUS REGISTRASI VMS - REVISI',
+        recipients=[inviting.email]
         )
     msg_vst.html = '<p>Anda diminta untuk memperbaiki dokumen untuk kunjungan.</p>'
     msg_vst.html += '<p>Silahkan klik link berikut untuk memperbaiki dokumen.</p>'
@@ -231,6 +235,7 @@ def hold_inviting(id, id_user):
     # return jsonify({'message' : str(user_spv)}), 200
 
     msg_inviter = Message(
+        sender = "asahimasservice@gmail.com",
         subject='STATUS REGISTRASI VMS - REVISI',
         recipients=[email_inviter],
         cc = [email_supervisor]
@@ -255,9 +260,10 @@ def not_approved_inviting(id, id_user):
     inviting.approved_by = id_user
     inviting.status = status[1]
     msg = Message(
-            subject='UPDATE STATUS REGISTRASI VMS - DITOLAK',
-            recipients=[inviting.email]
-        )
+        sender = "asahimasservice@gmail.com",
+        subject='UPDATE STATUS REGISTRASI VMS - DITOLAK',
+        recipients=[inviting.email]
+    )
     msg.html = '<p>Dokumen kunjungan anda ditolak.</p>'
     msg.html += '<p>Silahkan hubungi PIC anda untuk mengundang kembali dan siapkan dokumen sesuai dengan ketentuan.</p>'
 

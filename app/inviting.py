@@ -6,6 +6,7 @@ from flask_mail import Message
 from . import mail
 import json
 import requests
+from .log_file import LogFile
 
 status = [
     'Approved',
@@ -15,6 +16,8 @@ status = [
 ]
 
 ip = app.config['IP']
+
+log = LogFile('inviting')
 
 def check_user_inviting(email):
     user = M_User.query.filter_by(email=email).first()
@@ -48,11 +51,7 @@ def create_inviting(id_user):
             id_usertype = 3,
             supervisor = user_id,
         )
-        db.session.add(new_user)
     try:
-        db.session.add(new_inviting)
-        db.session.commit()
-
         link = domain + path + "?email=" + email
 
         # Send Email
@@ -64,10 +63,15 @@ def create_inviting(id_user):
         msg.html = '<p>Anda telah diundang oleh PT Asahimas Chemical untuk bergabung di Aplikasi VMS.</p>'
         msg.html += '<p>Silahkan klik link berikut untuk melakukan registrasi.</p>'
         msg.html += '<p><a href="{}">Registrasi</a></p>'.format(link)
+        db.session.add(new_user)
+        db.session.add(new_inviting)
+        db.session.commit()
         mail.send(msg)
 
+        log.log.info('New inviting created! by user id {}'.format(user_id))
         return jsonify({'message': 'Email sent!'}), 200
     except Exception as e:
+        log.log.error(str(e))
         return jsonify({'message': str(e)}), 400
 
         
@@ -165,7 +169,6 @@ def approved_inviting(id, id_user):
             if data["message"] != "success":
                 return jsonify({'code' : data["code"],'message': data["message"]}), 500
             else:
-                db.session.commit()
                 msg_vst = Message(
                     sender = "asahimasservice@gmail.com",
                     subject='STATUS REGISTRASI VMS - DISETUJUI',
@@ -196,15 +199,19 @@ def approved_inviting(id, id_user):
 
                 mail.send(msg_vst)
                 mail.send(msg_inviter)
+                db.session.commit()
 
+                log.log.info('Inviting approved! by user id {} and email has been sent with inviting id {}'.format(id_user, inviting.id))
                 return jsonify({'code' : data["code"],'message': data["message"]}), 200
 
         else:
+            log.log.warning("Error when send to zkteco")
             return jsonify({
                 'code': data.status_code,
             }), data.status_code
     except Exception as e:
-        return jsonify({'message': str(e)}), 500 
+        log.log.error(str(e))
+        return jsonify({'message': 'There is problem with website'}), 500 
 
 def hold_inviting(id, id_user):
     inviting = M_Inviting.query.filter_by(id=id).first()
@@ -245,9 +252,11 @@ def hold_inviting(id, id_user):
         db.session.commit()
         mail.send(msg_vst)
         mail.send(msg_inviter)
+        log.log.info('Inviting hold! by user id {} with inviting id {}'.format(id_user, inviting.id))
         return jsonify({'message': 'Invite Was Hold!'}), 200
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        log.log.error(str(e))
+        return jsonify({'message': 'There is problem with send email'}), 500
 
 
 def not_approved_inviting(id, id_user):
@@ -285,9 +294,11 @@ def not_approved_inviting(id, id_user):
         db.session.commit()
         mail.send(msg)
         mail.send(msg_inviter)
+        log.log.info('Inviting not approved! by user id {} with inviting id {}'.format(id_user, inviting.id))
         return jsonify({'message': 'Inviting not approved!'}), 200
-    except:
-        return jsonify({'message': 'Inviting not approved!'}), 500
+    except Exception as e:
+        log.log.error(str(e))
+        return jsonify({'message': 'Failed to Not Approved!'}), 500
 
 
 def delete_inviting(id):

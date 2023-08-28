@@ -3,6 +3,9 @@ from flask import request, jsonify
 import datetime
 import os
 from . import app
+from .log_file import LogFile
+
+log = LogFile('card')
 
 def create_card():
     now = datetime.datetime.now()  
@@ -13,11 +16,15 @@ def create_card():
         is_active = 1,
         is_used = 0,
     )
+    try:
+        db.session.add(new_card)
+        db.session.commit()
 
-    db.session.add(new_card)
-    db.session.commit()
-
-    return jsonify({'message': 'New card created!'}), 200
+        log.log.info('New card created! ' + str(new_card.card_number))
+        return jsonify({'message': 'New card created!'}), 200
+    except Exception as e:
+        log.log.error(str(e))
+        return jsonify({'message': 'there is problem with created card'}), 500
 
 def get_all_card():
     cards = M_Card.query.all()
@@ -83,10 +90,12 @@ def update_card(id):
         card.is_active = request.form.get('is_active')
         card.is_used = request.form.get('is_used')
         db.session.commit()
-    except:
-        return jsonify({'message': 'Failed to update card!'}), 400
 
-    return jsonify({'message': 'Card updated!'}), 200
+        log.log.info('Card updated! ' + str(card.card_number) + ' ' + str(card.id))
+        return jsonify({'message': 'Card updated!'}), 200
+    except Exception as e:
+        log.log.error(str(e))
+        return jsonify({'message': 'Failed to update card!'}), 400
 
 def delete_card(id):
     card = M_Card.query.filter_by(id=id).first()

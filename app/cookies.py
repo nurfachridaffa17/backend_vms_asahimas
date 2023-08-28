@@ -1,6 +1,10 @@
 from .models import db,Zkteco
 from flask import request, jsonify, session
 import datetime
+from .log_file import LogFile
+
+log = LogFile('cookies')
+
 
 def update_cookies(id):
     cookie_id = Zkteco.query.filter_by(id=id).first()
@@ -14,8 +18,11 @@ def update_cookies(id):
         cookie_id.cookie = cookie
         cookie_id.ip = ip
         db.session.commit()
+        
+        log.log.info('Cookies updated! ' + str(cookie_id.cookie))
         return jsonify({'message': 'Cookies updated!'}), 200
     except Exception as e:
+        log.log.error(str(e))
         return jsonify({'message': str(e)}), 500
 
 def get_all_cookies():

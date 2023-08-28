@@ -1,6 +1,9 @@
 from .models import db,M_Access_Area
 from flask import request, jsonify
 import datetime
+from .log_file import LogFile
+
+log = LogFile('access_area')
 
 def create_access_area():
     new_access_area = M_Access_Area(
@@ -11,6 +14,7 @@ def create_access_area():
     db.session.add(new_access_area)
     db.session.commit()
 
+    log.log.info('New access area created!')
     return jsonify({'message': 'New access area created!'}), 200
 
 def get_all_access_area():
@@ -48,9 +52,12 @@ def update_access_area(id):
     try:
         access_area.name = request.form.get('name')
         db.session.commit()
+
+        log.log.info('Access area updated!')
         return jsonify({'message': 'Access area updated!'}), 200
-    except:
-        return jsonify({'message': 'Access area not updated!'}), 500
+    except Exception as e:
+        log.log.error(str(e))
+        return jsonify({'message': str(e)}), 500
 
 def delete_access_area(id):
     access_area = M_Access_Area.query.filter_by(id=id).first()

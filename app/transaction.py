@@ -5,6 +5,9 @@ import random
 from . import app
 import json
 import requests
+from .log_file import LogFile
+
+log = LogFile('transaction')
 
 def create_transaction():
     card_id = request.form.get('card_id')
@@ -27,35 +30,12 @@ def create_transaction():
         'Cookie' : get_zkteco.cookie,
         'Content-Type' : 'application/json'
     }
-
-    # try:
-    #     data = requests.post(url, headers=headers, data=payload)
-    #     if data.status_code == 200:
-    #         data = data.json()
-    #         if data["message"] != "success":
-    #             return jsonify({
-    #                 'code' : data["code"],
-    #                 'message': data["message"]
-    #                 }), 500
-    #         else:
-    #             db.session.commit()
-    #             return jsonify({
-    #                 'code' : data["code"],
-    #                 'message': data["message"]
-    #             }), 200
-
-    #     else:
-    #         return jsonify({
-    #             'code': data.status_code,
-    #         }), data.status_code
-    # except Exception as e:
-    #     return jsonify({'message': str(cookie.cookie)}), 500 
-    
     try:
         data = requests.post(url, headers=headers, data=payload)
         if data.status_code == 200:
             data = data.json()
             if data["message"] != "success":
+                log.log.warning("code" + data["code"] + "message" + data["message"])
                 return jsonify({
                     'code' : data["code"],
                     'message': data["message"]
@@ -71,6 +51,8 @@ def create_transaction():
                 check_card.is_used = 1
                 db.session.add(new_transaction)
                 db.session.commit()
+
+                log.log.info('New transaction created! ' + str(new_transaction.id))
                 return jsonify({
                     'code' : data["code"],
                     'message': data["message"],
@@ -78,11 +60,13 @@ def create_transaction():
                 }), 200
 
         else:
+            log.log.warning("code" + data["code"] + "message" + data["message"])
             return jsonify({
                 'code': data.status_code,
             }), data.status_code
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        log.log.error(str(e))
+        return jsonify({'message': 'there is problem for created transaction'}), 500
     
 def get_all_transaction():
     transactions = T_Rfid.query.all()

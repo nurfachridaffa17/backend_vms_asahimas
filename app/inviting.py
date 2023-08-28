@@ -102,7 +102,6 @@ def get_inviting_by_id(id):
     inviting_data['id'] = inviting.id
     inviting_data['created_by'] = inviting.created_by
     inviting_data['is_active'] = inviting.is_active
-    inviting_data['user_id'] = inviting.user_id
     inviting_data['email'] = inviting.email
     inviting_data['access_area_id'] = inviting.access_area_id
     inviting_data['datetime'] = inviting.datetime
